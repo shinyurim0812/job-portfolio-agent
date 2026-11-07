@@ -35,6 +35,13 @@ def test_list_markers_and_question_ids_ignored():
     assert unsupported(draft, SOURCE) == []
 
 
+def test_figma_pdf_spaced_digits_in_source():
+    # Figma에서 내보낸 PDF를 pypdf로 추출하면 숫자 사이에 공백이 들어간다 (실제 자료에서 발견)
+    source = "2 0 2 6 . 0 1 . 0 2 ~ 2 0 2 6 . 0 2 . 2 8 인턴, AI ROOKIE 본선 (40/721팀)"
+    assert unsupported("2026.01.02부터 인턴", source) == []
+    assert unsupported("721팀 중 본선", source) == []
+
+
 def test_spec_only_text_fields_checked():
     spec = {"width": 1600, "slides": [{"name": "p1", "elements": [
         {"type": "text", "text": "정확도 87%", "x": 72, "y": 999, "size": 48},
