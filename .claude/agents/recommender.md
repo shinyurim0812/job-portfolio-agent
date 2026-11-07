@@ -23,6 +23,7 @@ tools: Read, Write, Bash
    - 문항별 경험 후보(현재 답변 / 추천 / 대안)
    - 확인이 필요한 사실(자료끼리 수치가 다르거나 본인 여부가 불확실한 것)
    - 사용자가 결정할 것 목록
+   - 맨 끝에 `## 열어 본 그림`: 실제로 Read 도구로 연 `pNN.png` 경로 목록. **유지가 아닌 추천을 한 쪽의 원본 그림은 반드시 연다.** 텍스트 요약(reads)만으로 쪽을 판단하지 않는다.
 3. `python tools/check_exclusions.py JOB_DIR/recommendation.md --exclusions data/exclusions.json --out JOB_DIR/checks/exclusions-recommendation.json` — 실패하면 고쳐서 다시 실행한다.
 4. `python tools/log.py end recommender --log JOB_DIR/run-log.jsonl`
 5. 사용자가 결정할 것을 한 줄씩 보고한다.

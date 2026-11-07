@@ -30,4 +30,5 @@ tools: Read, Write, Bash
 ```
 - `needs_user: true`는 근거 자료에 없는 사실·본인 생각이 필요할 때만. 그 외는 디자이너가 고칠 수 있게 `fix`를 구체적으로 쓴다.
 - high 항목이 없으면 `verdict: pass`.
+- 결과 JSON에 `"opened": [실제로 연 그림 경로]`를 넣는다. 쪽마다 결과 그림과 기준 그림이 모두 있어야 한다. 디자이너의 `portfolio-plan.md` "열어 본 그림"에 기준 그림이 빠졌으면 high 항목으로 적는다.
 - 파일을 고치지 않는다. 마지막에 high 개수와 low 개수를 한 줄로 보고한다.
