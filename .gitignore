@@ -4,6 +4,8 @@ output/
 *.pdf
 *.docx
 .claude/settings.local.json
+# 공고 분석 원문은 회사가 드러나므로 예시 실행에서도 제외
+docs/example-run/**/analysis.json
 
 # Python
 __pycache__/
