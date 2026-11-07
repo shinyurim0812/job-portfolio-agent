@@ -1,0 +1,6 @@
+{"ts": "2026-11-08T02:30:42.803", "event": "start", "agent": "experience-indexer"}
+{"ts": "2026-11-08T02:30:45.513", "event": "start", "agent": "jd-analyzer"}
+{"ts": "2026-11-08T02:30:48.889", "event": "start", "agent": "portfolio-reader"}
+{"ts": "2026-11-08T02:31:05.870", "event": "end", "agent": "jd-analyzer"}
+{"ts": "2026-11-08T02:33:41.595", "event": "end", "agent": "experience-indexer"}
+{"ts": "2026-11-08T02:34:08.325", "event": "end", "agent": "portfolio-reader"}
