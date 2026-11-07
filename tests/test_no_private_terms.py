@@ -12,15 +12,19 @@ ROOT = Path(__file__).resolve().parents[1]
 TERMS_FILE = ROOT / "data" / "private_terms.json"
 
 
-def find_terms(text: str, terms: list[str]) -> list[str]:
+def find_terms(text: str, terms: list[str], allow: list[str] = ()) -> list[str]:
+    """allow: 이름을 포함하지만 이름이 아닌 일반 단어(예: '슬라이드'). 먼저 지우고 검사한다."""
     low = text.lower()
+    for word in allow:
+        low = low.replace(word.lower(), " ")
     return [t for t in terms if t.lower() in low]
 
 
 def load_terms():
     if not TERMS_FILE.exists():
         pytest.skip("data/private_terms.json 없음")
-    return json.loads(TERMS_FILE.read_text(encoding="utf-8"))["terms"]
+    data = json.loads(TERMS_FILE.read_text(encoding="utf-8"))
+    return data["terms"], data.get("allow", [])
 
 
 def git(*args) -> str:
@@ -33,8 +37,14 @@ def test_find_terms_catches_planted_name():
     assert find_terms("docs: 실제 채용공고 실행", ["acmecorp"]) == []
 
 
+def test_allowed_common_word_is_not_a_hit():
+    # 실제로 겪은 거짓 실패(일반 단어 안에 짧은 회사 이름이 들어 있는 경우)를 가상의 이름 '나크'로 재현
+    assert find_terms("모나크 전체를 벡터로", ["나크"], allow=["모나크"]) == []
+    assert find_terms("나크 포트폴리오", ["나크"], allow=["모나크"]) == ["나크"]
+
+
 def test_tracked_files_have_no_private_terms():
-    terms = load_terms()
+    terms, allow = load_terms()
     hits = {}
     # 추적 중인 파일 + 아직 추적 전이지만 커밋될 수 있는 새 파일(.gitignore 제외 대상은 뺌)
     candidates = git("ls-files").splitlines() + git("ls-files", "--others", "--exclude-standard").splitlines()
@@ -46,13 +56,13 @@ def test_tracked_files_have_no_private_terms():
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        found = find_terms(text, terms) + find_terms(rel, terms)
+        found = find_terms(text, terms, allow) + find_terms(rel, terms, allow)
         if found:
             hits[rel] = found
     assert not hits, f"커밋 대상 파일에 비공개 이름: {hits}"
 
 
 def test_commit_messages_have_no_private_terms():
-    terms = load_terms()
-    hits = find_terms(git("log", "--format=%B"), terms)
+    terms, allow = load_terms()
+    hits = find_terms(git("log", "--format=%B"), terms, allow)
     assert not hits, f"커밋 메시지에 비공개 이름: {hits}"
