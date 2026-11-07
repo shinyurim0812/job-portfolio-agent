@@ -74,6 +74,32 @@ def test_invalid_arrow_value_fails(tmp_path):
             {"type": "line", "name": "Flow/X", "x": 100, "y": 200, "w": 300, "h": 0, "stroke": "#252B33", "arrow": "middle"}]))
 
 
+def test_rect_radius_all_corners(tmp_path):
+    data = bp.load_spec(write_spec(tmp_path, [
+        {"type": "rect", "name": "Card/A", "x": 100, "y": 100, "w": 400, "h": 300, "fill": "#FFFFFF", "radius": 16}]))
+    assert data["slides"][0]["elements"][0]["radius"] == 16
+
+
+def test_rect_radius_too_large_fails(tmp_path):
+    with pytest.raises(ValueError, match="radius"):
+        bp.load_spec(write_spec(tmp_path, [
+            {"type": "rect", "name": "Card/A", "x": 100, "y": 100, "w": 40, "h": 30, "fill": "#FFFFFF", "radius": 20}]))
+
+
+def test_dashed_stroke_accepted_and_validated(tmp_path):
+    data = bp.load_spec(write_spec(tmp_path, [
+        {"type": "ellipse", "name": "Bg/Ring", "x": 100, "y": 100, "w": 600, "h": 260, "stroke": "#FFFFFF", "dash": [6, 6]}]))
+    assert data["slides"][0]["elements"][0]["dash"] == [6, 6]
+    with pytest.raises(ValueError, match="dash"):
+        bp.load_spec(write_spec(tmp_path, [
+            {"type": "ellipse", "name": "Bg/Ring", "x": 100, "y": 100, "w": 600, "h": 260, "stroke": "#FFFFFF", "dash": [0]}]))
+
+
+def test_runtime_applies_radius_and_dash():
+    js = RUNTIME.read_text(encoding="utf-8")
+    assert "cornerRadius" in js and "dashPattern" in js
+
+
 def test_runtime_uses_only_native_nodes():
     js = RUNTIME.read_text(encoding="utf-8")
     for forbidden in ("createVector", "vectorPaths", "vectorNetwork", "createNodeFromSvg", "flatten("):

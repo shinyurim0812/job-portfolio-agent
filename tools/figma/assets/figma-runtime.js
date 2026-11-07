@@ -85,6 +85,7 @@ async function createPortfolio(family) {
           node=figma.createRectangle();frame.appendChild(node);node.resize(e.w,e.h);
           node.fills=e.fill?paint(e.fill):[];node.strokes=e.stroke?paint(e.stroke):[];
           if(e.stroke)node.strokeWeight=e.strokeWeight||1;
+          if(e.radius)node.cornerRadius=e.radius;
           if(e.radiusBR){node.topLeftRadius=0;node.topRightRadius=0;node.bottomLeftRadius=0;node.bottomRightRadius=e.radiusBR;}
         } else if(e.type==='ellipse'){
           node=figma.createEllipse();frame.appendChild(node);node.resize(e.w,e.h);
@@ -97,6 +98,7 @@ async function createPortfolio(family) {
           node=figma.createRectangle();frame.appendChild(node);node.resize(e.w,e.h);
           node.fills=[{type:'IMAGE',imageHash:imageHashes[e.key],scaleMode:e.fit||'FIT'}];
         } else throw new Error('지원하지 않는 요소: '+e.type);
+        if(e.dash&&'dashPattern' in node)node.dashPattern=e.dash;
         node.name=e.name.split('/').slice(1).join('/')||e.name;
         node.x=e.x;node.y=e.y;
         const groupName=e.name.split('/')[0];

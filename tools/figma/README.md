@@ -20,6 +20,7 @@ python tools/figma/scripts/build_plugin.py --spec SPEC.json --out NEW_DIR --name
  ]}]}
 ```
 - `ellipse`: `rect`와 같은 속성(fill, stroke, strokeWeight)으로 원·타원을 만든다.
+- `rect`의 `"radius": 16`은 네 모서리, 기존 `radiusBR`은 오른쪽 아래만 둥글게 한다. `rect`·`ellipse`의 `"dash": [6, 6]`은 점선 테두리(Figma dashPattern)다. 미리보기에서는 점선이 실선으로 그려진다.
 - `line`: `w`, `h`는 음수 가능(모든 방향). `"arrow": "none" | "start" | "end" | "both"`, `"arrowSize": 14`. 화살촉은 **짧은 Line 2개**로 만든다. Figma Line의 끝 모양(strokeCap)은 양쪽 끝에 함께 적용되고 한쪽만 지정하는 방법이 문서에 없기 때문이다.
 - 줄바꿈은 `\n`으로 직접 넣는다. 빌더가 실제 글꼴 폭으로 넘침을 검사한다(`text exceeds width/height`).
 - `name`의 `/` 앞부분이 Figma 그룹 이름이 된다.

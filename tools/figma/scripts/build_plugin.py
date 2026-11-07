@@ -81,6 +81,15 @@ def load_spec(path):
                         color(e[key], label + '.' + key)
                 if e.get('stroke'):
                     number(e.get('strokeWeight', 1), label + '.strokeWeight', .1)
+                if kind == 'rect' and e.get('radius'):
+                    number(e['radius'], label + '.radius')
+                    if e['radius'] > min(e['w'], e['h']) / 2:
+                        raise ValueError(f'{label}: excessive radius')
+                if e.get('dash') is not None:
+                    dash = e['dash']
+                    if not isinstance(dash, list) or len(dash) != 2 or any(
+                            isinstance(v, bool) or not isinstance(v, (int, float)) or v <= 0 for v in dash):
+                        raise ValueError(f'{label}: dash must be [dashLength, gapLength] > 0')
                 if kind == 'rect' and e.get('radiusBR'):
                     number(e['radiusBR'], label + '.radiusBR')
                     if e['radiusBR'] > min(e['w'], e['h']) / 2:
@@ -182,7 +191,10 @@ def render(slide, data, font):
             radius = round(e.get('radiusBR', 0) * scale)
             fill, stroke = e.get('fill'), e.get('stroke')
             weight = max(1, round(e.get('strokeWeight', 1) * scale))
-            if radius:
+            if e.get('radius'):
+                # Preview draws dashes as solid lines; Figma applies dashPattern.
+                draw.rounded_rectangle((x, y, x + w, y + h), round(e['radius'] * scale), fill=fill, outline=stroke, width=weight)
+            elif radius:
                 draw.rounded_rectangle((x, y, x + w, y + h), radius, fill=fill, outline=stroke, width=weight,
                                        corners=(False, False, True, False))
             else:
