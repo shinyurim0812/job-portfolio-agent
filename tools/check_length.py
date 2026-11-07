@@ -5,15 +5,20 @@ questions JSON: {"count_rule": {"mode": "with_spaces"|"without_spaces", "newline
                  "questions": [{"id": "q1", "limit": 500}, ...]}
 
 Submission sites differ in how they count line breaks; the rule is configurable.
+Answers must also fill at least min_ratio of the limit (default 0.9, i.e. 450 of 500);
+set "min_ratio" in count_rule or per question to override.
 
 Usage: python tools/check_length.py answers.json questions.json [--out PATH]
-Exit code 0 = all within limits, 1 = over limit or missing answer.
+Exit code 0 = all within range, 1 = over limit, under minimum, or missing answer.
 """
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
+
+DEFAULT_MIN_RATIO = 0.9
 
 
 def count(text: str, mode: str = "with_spaces", newline_chars: int = 1) -> int:
@@ -33,8 +38,11 @@ def check(answers_doc: dict, questions_doc: dict) -> dict:
             results.append({"id": q["id"], "ok": False, "error": "missing answer"})
             continue
         c = count(answers[q["id"]], mode, nl)
-        results.append({"id": q["id"], "count": c, "limit": q["limit"],
-                        "over_by": max(0, c - q["limit"]), "ok": c <= q["limit"]})
+        ratio = q.get("min_ratio", rule.get("min_ratio", DEFAULT_MIN_RATIO))
+        lo = math.ceil(q["limit"] * ratio)
+        results.append({"id": q["id"], "count": c, "limit": q["limit"], "min": lo,
+                        "over_by": max(0, c - q["limit"]), "under_by": max(0, lo - c),
+                        "ok": lo <= c <= q["limit"]})
     return {"ok": all(r["ok"] for r in results), "rule": {"mode": mode, "newline_chars": nl}, "results": results}
 
 
