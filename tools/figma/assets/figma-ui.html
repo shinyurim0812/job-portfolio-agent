@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><style>
+body{font-family:Inter,'Noto Sans KR','Malgun Gothic',sans-serif;margin:0;padding:24px;color:#252B33;background:#fff;font-size:13px}
+h1{font-size:18px;margin:0 0 12px;color:#142B57}p{line-height:1.6;margin:8px 0 16px;color:#687482}
+label{display:block;margin-bottom:8px;font-weight:600}select{box-sizing:border-box;width:100%;padding:10px;border:1px solid #DAE1EB;border-radius:5px;background:white;color:#252B33}
+button{padding:12px 14px;border:0;border-radius:5px;font-weight:600;cursor:pointer}#run{background:#142B57;color:white;flex:1}#close{background:#EAF0F7;color:#142B57}button:disabled{opacity:.45;cursor:default}
+.actions{display:flex;gap:8px;margin-top:20px}#status{min-height:40px;margin:14px 0 0;line-height:1.55}#status.error{color:#A22E31}progress{width:100%;height:7px;accent-color:#142B57;margin-top:12px}
+</style></head><body>
+<h1>직무 맞춤 포트폴리오 생성</h1>
+<p>현재 페이지에 새 포트폴리오 추가<br>텍스트·표·도형을 각각 편집할 수 있습니다.</p>
+<label for="font">한국어 글꼴</label><select id="font" disabled><option>사용 가능한 글꼴 확인 중…</option></select>
+<div class="actions"><button id="run" disabled>포트폴리오 생성</button><button id="close">닫기</button></div>
+<progress id="progress" max="1" value="0" hidden></progress>
+<div id="status" role="status" aria-live="polite">Noto Sans KR을 기본으로 사용합니다.</div>
+<script>
+const font=document.getElementById('font'),run=document.getElementById('run'),status=document.getElementById('status'),bar=document.getElementById('progress'),close=document.getElementById('close');
+const post=msg=>parent.postMessage({pluginMessage:msg},'*');
+run.onclick=()=>{run.disabled=true;font.disabled=true;close.disabled=true;status.className='';status.textContent='글꼴과 이미지 확인 중…';bar.hidden=false;bar.value=0;post({type:'generate',family:font.value});};
+close.onclick=()=>post({type:'close'});
+window.onmessage=event=>{
+ const m=event.data.pluginMessage;if(!m)return;
+ if(m.type==='ready'){
+  font.replaceChildren();for(const family of m.families){const o=document.createElement('option');o.value=family;o.textContent=family;font.appendChild(o);}
+  bar.max=m.count;document.querySelector('p').textContent=m.count+'장 · '+m.width+'×'+m.height+' · 텍스트·도형을 각각 편집할 수 있습니다.';font.value=m.preferred;font.disabled=false;run.disabled=false;
+  status.textContent=m.preferred==='Noto Sans KR'?'기존 콘텐츠를 보존하고 오른쪽 빈 공간에 추가합니다.':'Noto Sans KR이 없습니다. 한국어를 지원하는 글꼴을 선택해주세요.';
+ }
+ if(m.type==='progress'){bar.value=m.done;bar.max=m.total;status.textContent=m.done+' / '+m.total+'장 생성 중…';}
+ if(m.type==='complete'){status.textContent=m.count+'장 생성 완료. Figma에서 각 레이어를 수정할 수 있습니다.';run.disabled=false;font.disabled=false;close.disabled=false;run.textContent='새 세트 추가 생성';}
+ if(m.type==='error'){status.className='error';status.textContent=m.message;run.disabled=font.options.length===0||font.disabled&&font.options.length===1&&font.options[0].textContent.includes('확인 중');font.disabled=false;close.disabled=false;bar.hidden=true;}
+};
+</script></body></html>
