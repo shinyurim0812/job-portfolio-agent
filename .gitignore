@@ -1,0 +1,11 @@
+# Personal data and run outputs never leave this machine
+data/
+output/
+*.pdf
+*.docx
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
