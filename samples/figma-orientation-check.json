@@ -1,0 +1,8 @@
+{"width": 1920, "height": 1080, "slides": [{"name": "arrow demo", "elements": [
+  {"type": "text", "name": "T/Title", "text": "화살표·원 확인", "x": 80, "y": 40, "w": 800, "h": 80, "size": 48, "lh": 64, "bold": true, "color": "#252B33"},
+  {"type": "line", "name": "A/Right", "x": 200, "y": 300, "w": 400, "h": 0, "stroke": "#142B57", "weight": 4, "arrow": "end", "arrowSize": 28},
+  {"type": "line", "name": "A/Left", "x": 1200, "y": 300, "w": -400, "h": 0, "stroke": "#A22E31", "weight": 4, "arrow": "end", "arrowSize": 28},
+  {"type": "line", "name": "A/Down", "x": 300, "y": 450, "w": 0, "h": 400, "stroke": "#2E7D32", "weight": 4, "arrow": "end", "arrowSize": 28},
+  {"type": "line", "name": "A/Diag", "x": 700, "y": 450, "w": 400, "h": 400, "stroke": "#6A1B9A", "weight": 4, "arrow": "both", "arrowSize": 28},
+  {"type": "ellipse", "name": "E/Dot", "x": 1400, "y": 500, "w": 200, "h": 200, "fill": "#F5F7FA", "stroke": "#142B57", "strokeWeight": 4}
+]}]}

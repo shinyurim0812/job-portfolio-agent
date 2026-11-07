@@ -53,13 +53,17 @@ def load_spec(path):
             label = f'page {page}, element {idx + 1}'
             if not isinstance(e.get('name'), str) or not e['name']:
                 raise ValueError(f'{label}: name required')
-            for key in ('x', 'y', 'w', 'h'):
-                number(e[key], f'{label}.{key}')
-            if e['x'] + e['w'] > data['width'] + .01 or e['y'] + e['h'] > data['height'] + .01:
-                raise ValueError(f'{label}: outside canvas')
             kind = e.get('type')
-            if kind not in ('text', 'rect', 'line', 'image'):
+            if kind not in ('text', 'rect', 'ellipse', 'line', 'image'):
                 raise ValueError(f'{label}: unsupported type {kind}')
+            for key in ('x', 'y'):
+                number(e[key], f'{label}.{key}')
+            for key in ('w', 'h'):
+                # Lines may point in any direction (negative w/h); areas may not.
+                number(e[key], f'{label}.{key}', -data[key == 'w' and 'width' or 'height'] if kind == 'line' else 0)
+            xs, ys = (e['x'], e['x'] + e['w']), (e['y'], e['y'] + e['h'])
+            if min(xs) < -.01 or min(ys) < -.01 or max(xs) > data['width'] + .01 or max(ys) > data['height'] + .01:
+                raise ValueError(f'{label}: outside canvas')
             if kind != 'line' and (e['w'] == 0 or e['h'] == 0):
                 raise ValueError(f'{label}: empty area')
             if kind == 'text':
@@ -71,25 +75,61 @@ def load_spec(path):
                 if e.get('align', 'LEFT') not in ('LEFT', 'CENTER', 'RIGHT'):
                     raise ValueError(f'{label}: invalid alignment')
                 e.setdefault('align', 'LEFT')
-            elif kind == 'rect':
+            elif kind in ('rect', 'ellipse'):
                 for key in ('fill', 'stroke'):
                     if e.get(key):
                         color(e[key], label + '.' + key)
                 if e.get('stroke'):
                     number(e.get('strokeWeight', 1), label + '.strokeWeight', .1)
-                if e.get('radiusBR'):
+                if kind == 'rect' and e.get('radiusBR'):
                     number(e['radiusBR'], label + '.radiusBR')
                     if e['radiusBR'] > min(e['w'], e['h']) / 2:
                         raise ValueError(f'{label}: excessive radius')
             elif kind == 'line':
                 color(e['stroke'], label + '.stroke')
                 number(e.get('weight', 1), label + '.weight', .1)
+                if e.get('arrow', 'none') not in ARROWS:
+                    raise ValueError(f'{label}: arrow must be one of {ARROWS}')
+                if e['w'] == 0 and e['h'] == 0:
+                    raise ValueError(f'{label}: zero-length line')
             elif kind == 'image':
                 if e.get('key') not in normalized:
                     raise ValueError(f'{label}: unknown image key')
                 if e.get('fit', 'FIT') not in ('FIT', 'FILL'):
                     raise ValueError(f'{label}: fit must be FIT/FILL')
+        slide['elements'] = expand_arrows(slide['elements'])
     return data
+
+
+ARROWS = ('none', 'start', 'end', 'both')
+
+
+def expand_arrows(elements):
+    """Arrowheads are two short native Lines meeting at the tip (no Vector nodes).
+
+    Figma's LineNode strokeCap applies to both ends, so a one-ended arrow is drawn
+    as extra Line elements instead.
+    """
+    out = []
+    for e in elements:
+        out.append(e)
+        if e['type'] != 'line' or e.get('arrow', 'none') == 'none':
+            continue
+        size = e.get('arrowSize', 14)
+        angle = math.atan2(e['h'], e['w'])
+        tips = []
+        if e['arrow'] in ('end', 'both'):
+            tips.append(((e['x'] + e['w'], e['y'] + e['h']), angle))
+        if e['arrow'] in ('start', 'both'):
+            tips.append(((e['x'], e['y']), angle + math.pi))
+        group = e['name'].split('/')[0]
+        for (tx, ty), a in tips:
+            for side in (-1, 1):
+                back = a + math.pi + side * math.pi / 6
+                out.append({'type': 'line', 'name': f'{group}/ArrowHead', 'x': tx, 'y': ty,
+                            'w': round(size * math.cos(back), 2), 'h': round(size * math.sin(back), 2),
+                            'stroke': e['stroke'], 'weight': e.get('weight', 1)})
+    return out
 
 
 def find_font(explicit):
@@ -147,6 +187,9 @@ def render(slide, data, font):
                                        corners=(False, False, True, False))
             else:
                 draw.rectangle((x, y, x + w, y + h), fill=fill, outline=stroke, width=weight)
+        elif kind == 'ellipse':
+            draw.ellipse((x, y, x + w, y + h), fill=e.get('fill'), outline=e.get('stroke'),
+                         width=max(1, round(e.get('strokeWeight', 1) * scale)))
         elif kind == 'line':
             draw.line((x, y, x + w, y + h), fill=e['stroke'], width=max(1, round(e.get('weight', 1) * scale)))
         elif kind == 'text':

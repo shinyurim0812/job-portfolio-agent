@@ -86,8 +86,13 @@ async function createPortfolio(family) {
           node.fills=e.fill?paint(e.fill):[];node.strokes=e.stroke?paint(e.stroke):[];
           if(e.stroke)node.strokeWeight=e.strokeWeight||1;
           if(e.radiusBR){node.topLeftRadius=0;node.topRightRadius=0;node.bottomLeftRadius=0;node.bottomRightRadius=e.radiusBR;}
+        } else if(e.type==='ellipse'){
+          node=figma.createEllipse();frame.appendChild(node);node.resize(e.w,e.h);
+          node.fills=e.fill?paint(e.fill):[];node.strokes=e.stroke?paint(e.stroke):[];
+          if(e.stroke)node.strokeWeight=e.strokeWeight||1;
         } else if(e.type==='line'){
-          node=figma.createLine();frame.appendChild(node);node.resize(Math.hypot(e.w,e.h),0);node.rotation=Math.atan2(e.h,e.w)*180/Math.PI;node.strokes=paint(e.stroke);node.strokeWeight=e.weight||1;
+          // Figma: rotation = atan2(-m10, m00), so a line pointing down on screen needs a negative rotation.
+          node=figma.createLine();frame.appendChild(node);node.resize(Math.hypot(e.w,e.h),0);node.rotation=-Math.atan2(e.h,e.w)*180/Math.PI;node.strokes=paint(e.stroke);node.strokeWeight=e.weight||1;
         } else if(e.type==='image'){
           node=figma.createRectangle();frame.appendChild(node);node.resize(e.w,e.h);
           node.fills=[{type:'IMAGE',imageHash:imageHashes[e.key],scaleMode:e.fit||'FIT'}];
