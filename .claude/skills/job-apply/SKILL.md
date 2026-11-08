@@ -44,11 +44,14 @@ description: 채용공고 하나로 지원 자료를 만든다. 분석가가 공
    - 실패하면 1회 다시 맡기고, 또 실패하면 멈춘다.
    - 코드 검사가 보장하는 건 인용 존재와 제외 경험 없음까지다. 추천이 타당한지는 ⏸1에서 사용자가 판단한다.
 2. **⏸ 경험 선택**: `recommendation.md`의 "사용자가 결정할 것"을 묻는다. 답 없이 진행하지 않는다.
+   - 선택지를 만들 때 **제목과 설명이 같은 내용을 가리키게** 한다. 한 선택지에 성격이 다른 내용 두 가지가 섞여 있으면 나눠서 묻는다. (실패 사례: 제목 "설문 유도 설계"와 설명 "연령대 고려 15초 설계 + 보상 메시지"를 함께 보여 줘 사용자가 고른 초점과 기록이 어긋났다.)
 3. **계획 (병렬)**: writer `MODE=plan`, designer `MODE=plan` → `check_exclusions`(두 계획).
-4. **⏸ 승인**: 바뀌는 문구를 보여 주고 에이전트가 남긴 질문을 함께 묻는다.
-   - 질문은 **답에 따라 결과가 달라지는 것만** 묻는다. 나머지는 기본값을 밝히고 진행한다.
+4. **⏸ 승인**: 쪽·문항마다 "보여 줄 한 가지"와 바뀌는 문구를 보여 주고, 에이전트가 남긴 질문을 함께 묻는다.
+   - 질문은 **답에 따라 결과가 달라지는 것만** 묻는다. 나머지는 기본값을 밝힌다.
+   - **승인은 명시적으로 받는다.** 사용자가 질문 일부에만 답하고 승인 여부를 말하지 않으면 승인으로 보지 않고 다시 묻는다. 침묵을 승인으로 처리하지 않는다.
    - 수정 요청이 있으면 해당 에이전트에 계획 수정을 맡기고 다시 ⏸.
-5. **제작 (병렬)**: 같은 세션으로 writer `MODE=write`, designer `MODE=build`(OUT_DIR = `output/<slug>/vN`).
+5. **제작 (병렬)**: 같은 세션으로 writer `MODE=write`(네 문항을 한 번에), designer `MODE=build`(OUT_DIR = `output/<slug>/vN`).
+   - 포폴 결과물: 수정 쪽은 **수정 안내서**(`portfolio-guide.md`, 사용자가 Figma에서 직접 고침), 새 쪽만 **ZIP**. 사용자가 원하면 `OUTPUT=zip-all`로 수정 쪽도 ZIP.
 6. **검토 루프** (유일한 회차 규칙):
    - 1회차: reviewer가 전체를 본다 → `review/r1.json`.
    - open high가 있으면 writer(`q*`)·designer(`p*`)에 `MODE=revise`와 파일 경로를 넘긴다(병렬).
@@ -57,7 +60,7 @@ description: 채용공고 하나로 지원 자료를 만든다. 분석가가 공
    - `needs_user` 항목은 루프에서 고치지 않고 전달할 때 묻는다.
 7. **확인 (코드, 지휘자)**: `check_length`, `check_numbers`(답변·spec, sources에 `data/library/experiences.json`), `check_exclusions`, `check_layout_diff`, `python -m pytest -q`. 결과만 보고 내용을 고치지 않는다.
 8. **전달 (자동, 사용자가 묻기 전에)**:
-   - `output/<slug>/DELIVERY.md`에 적는 것: ZIP·답변 경로, 코드 검사 결과, 검토 회차별 고친 것, 미해결 high, `needs_user`, Figma 실행 방법
+   - `output/<slug>/DELIVERY.md`에 적는 것: 수정 안내서·ZIP·답변 경로, 코드 검사 결과, 검토 회차별 고친 것, 미해결 high, `needs_user`, Figma 실행 방법
    - `preview/overview.png`와 답변 원문을 대화에 보여 준다.
 
 ## 기록
