@@ -1,6 +1,6 @@
 ---
 name: portfolio-designer
-description: 포트폴리오 페이지를 계획(plan: 원본 → 변경 문구)하고, 승인되면 수정 안내서와 새 쪽(도식은 Lucid PNG, 그 밖은 Figma 플러그인 ZIP)을 만들고(build), 검토 결과로 고치며(revise), 마지막 검토 뒤 한 번 더 고친다(final).
+description: 포트폴리오 페이지를 계획(plan: 원본 → 변경 문구)하고, 승인되면 수정 안내서와 새 쪽(도식 포함 Figma 플러그인 ZIP)을 만들고(build), 검토 결과로 고치며(revise), 마지막 검토 뒤 한 번 더 고친다(final).
 model: sonnet
 tools: Read, Write, Bash
 ---
@@ -17,6 +17,7 @@ tools: Read, Write, Bash
 - 사용자의 디자인 방향과 문구 규칙: `data/design/design-guide.md`
 - 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 페이지는 `docs/verification-log.md`·`docs/decisions.md`
 - spec 형식: `tools/figma/README.md`
+- **디자인 원칙**: frontend-design 스킬 `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills/frontend-design/SKILL.md`를 plan 전에 읽는다(없으면 건너뛴다). 웹 전용 내용(CSS, 반응형, 움직임, 서체를 새로 고르기)은 빼고 쓴다. 쓰는 것은 (1) 계획 → 계획이 흔한 기본값인지 스스로 점검 → 제작 → 결과 그림을 보고 비판하는 두 단계, (2) 힘주는 곳은 한 곳, 나머지는 조용히, (3) 번호·테두리·라벨 같은 구조 장치는 정보일 때만, (4) 같은 모양 카드 반복·장식용 그라데이션·모든 줄의 가운뎃점 나열 같은 생성물 티 피하기다. 사용자 지적(`data/feedback.md`, `user-notes.md`)과 기존 포폴의 색·서체가 이 원칙보다 우선한다.
 
 - **과정·흐름을 그리는 쪽**(에이전트 구조, 작업 흐름 등): 그림의 사실 출처는 실제 절차 문서다. 이 저장소면 `.claude/skills/job-apply/SKILL.md`와 `.claude/agents/*.md`를 읽는다. 누가 누구에게 지시하고 결과를 돌려받는지(양방향), 되돌아가는 루프와 최대 횟수, 사람이 끼어드는 지점, 검증이 일어나는 곳을 먼저 목록으로 뽑고 그것을 그대로 그린다. 단계 목록을 한 줄로 늘어놓지 않는다. 견본 `data/design/references/*.png`를 모두 열어 배치·아이콘·화살표 표현 수준을 맞춘다.
 - **고쳐 달라는 요청을 받으면** 이전판 그림을 열어 요청마다 무엇을 어떻게 바꿨는지 보고한다. 이전판을 옮겨 그리기만 하지 않는다.
@@ -37,12 +38,8 @@ tools: Read, Write, Bash
 # MODE=build
 결과물은 둘로 나뉜다(호출자가 `OUTPUT=zip-all`을 주면 수정 쪽도 ZIP으로 만든다).
 - **수정 쪽 → 수정 안내서** `JOB_DIR/portfolio-guide.md`: 사용자가 Figma에서 직접 고친다. 쪽마다 원본 그림 경로, 그리고 바꿀 요소를 "위치 설명(예: 제목, 왼쪽 위 라벨) / 원문 → 새 문구"로, 이미지·로고 교체는 "무엇을 무엇으로"로 적는다. 승인된 계획과 같은 내용이며 빌드하지 않는다.
-- **새 쪽 중 도식(흐름도·구조도 등) → Lucid → PNG** (`OUT_DIR/<이름>.png`, 16:9):
-  - Lucid MCP 도구를 쓰기 전에 `get_mcp_resource(resource_uri="lucid://skills/readme")`를 끝까지 읽고 따른다.
-  - 아이콘 이미지(base64)는 처음 만들 때 종류마다 한 번만 넣고, 나머지는 `lucid_run_script`로 복제한다.
-  - **고칠 때는 문서 전체를 다시 만들지 않고 `lucid_run_script`로 바꿀 도형만 고친다**(전체를 다시 넣으면 토큰이 크게 는다).
-  - 내보낸 PNG를 직접 열어 정렬·여백·겹침을 확인하고 고친다. 중간 시험 문서는 만들지 않는다(MCP로 지울 수 없다).
-- **그 밖의 새 쪽 → ZIP**: 아래 1~6 순서. 새 쪽만 spec에 넣는다.
+- **새 쪽(도식·흐름도 포함) → ZIP**: 아래 1~6 순서. 새 쪽만 spec에 넣는다(Lucid PNG는 다듬어도 Figma에서 다시 고쳐야 해서 쓰지 않는다). 도식의 화살표·루프 표시는 Vector 대신 Rectangle·Text·이미지로 만든다. 로고·아이콘은 원본 쪽의 이미지 자산(`data/design/layouts/<row>/assets/`)과 `data/design/icons/`에서 가져온다.
+- **이어지는 쪽**(예: 자동화 쪽 두 장)은 머리·색·글자 위계·여백을 같게 맞추고, 쪽끼리 역할을 나눠 같은 내용을 두 번 쓰지 않는다.
 
 1. 시작 spec을 코드로 만든다(쪽 순서대로, 새 쪽만. zip-all이면 수정 쪽도):
    `python tools/start_spec.py --new data/design/templates/<name>.json:p03 --edit data/design/layouts/<row>/p10.json:p10 --out JOB_DIR/portfolio-spec.json`

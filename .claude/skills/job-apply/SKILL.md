@@ -61,7 +61,7 @@ description: 채용공고 하나로 지원 자료를 만든다. 분석가가 공
    - **승인은 명시적으로 받는다.** 질문 일부에만 답하고 승인 여부를 말하지 않으면 다시 묻는다. 침묵을 승인으로 처리하지 않는다.
    - 수정 요청(경험 변경 포함)이 있으면 해당 문항·쪽만 계획을 다시 쓰고 다시 ⏸.
 5. **제작 (병렬)**: 같은 세션으로 writer `MODE=write`(네 문항을 한 번에), designer `MODE=build`(OUT_DIR = `output/<slug>/vN`).
-   - 포폴 결과물: 수정 쪽은 **수정 안내서**(`portfolio-guide.md`, 사용자가 Figma에서 직접 고침). 새 쪽 중 도식(흐름도 등)은 **Lucid → PNG**, 그 밖의 새 쪽은 ZIP. 사용자가 원하면 `OUTPUT=zip-all`로 수정 쪽도 ZIP.
+   - 포폴 결과물: 수정 쪽은 **수정 안내서**(`portfolio-guide.md`, 사용자가 Figma에서 직접 고침). 새 쪽은 도식(흐름도 등)까지 모두 **Figma ZIP**(결정 19). 사용자가 원하면 `OUTPUT=zip-all`로 수정 쪽도 ZIP.
 6. **검토 루프** (유일한 회차 규칙):
    - 1회차: reviewer가 전체를 본다 → `review/r1.json`.
    - open 항목(high·low 모두, `needs_user: false`)을 writer(`q*`)·designer(`p*`)에 `MODE=revise`로 넘긴다(병렬).
