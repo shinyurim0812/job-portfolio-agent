@@ -10,14 +10,30 @@ Usage: python tools/extract_layout.py PORTFOLIO.pdf --pages 10 13 --out data/des
 Writes pNN.json (one-slide spec, "base" = "<pdf name>#pNN"), pNN.png (original page), assets/.
 """
 import argparse
+import io
 import json
 import sys
 from pathlib import Path
 
 import pymupdf
+from PIL import Image
 
 W = 1920
 LS = " "
+# ink pixels / (text width x size x rows). Calibrated on the real portfolio: regular text
+# measured 0.13-0.22, bold 0.22-0.33 (symbols like arrows are unreliable).
+BOLD_DENSITY = 0.22
+
+
+def ink_density(shot, box, color, height) -> float:
+    """Share of the text box covered by pixels close to the text color."""
+    x0, y0, x1, y1 = (int(round(v)) for v in box)
+    x0, y0 = max(0, x0), max(0, y0)
+    x1, y1 = min(shot.width, max(x1, x0 + 1)), min(shot.height, max(y1, y0 + 1))
+    target = tuple(int(color[i:i + 2], 16) for i in (1, 3, 5))
+    region = shot.crop((x0, y0, x1, y1))
+    ink = sum(1 for p in region.getdata() if sum(abs(p[i] - target[i]) for i in range(3)) < 120)
+    return ink / max(1, (x1 - x0) * height)
 
 
 def hexcolor(rgb, alpha=1.0):
@@ -86,8 +102,9 @@ def extract_page(page, assets_dir: Path, prefix: str) -> dict:
             hit = [i for i in cands if drawings[i]["rect"].contains(pymupdf.Point(cx, cy))]
             if hit:
                 i = hit[-1]
-                glyph.add(i)
                 col = hexcolor(drawings[i]["fill"], drawings[i].get("fill_opacity") or 1)
+                # Figma sometimes paints the same glyphs twice: every same-color hit is glyph paint
+                glyph.update(j for j in hit if hexcolor(drawings[j]["fill"], drawings[j].get("fill_opacity") or 1) == col)
             else:
                 v = c["color"]
                 col = f"#{v:06X}"
@@ -107,7 +124,8 @@ def extract_page(page, assets_dir: Path, prefix: str) -> dict:
         x0 = min(c["bbox"].x0 for c in ch)
         x1 = max(c["bbox"].x1 for c in ch)
         texts.append({"text": "".join(c["c"] for c in ch).strip(), "x0": x0, "x1": x1,
-                      "top": min(c["bbox"].y0 for c in ch), "base": ch[0]["origin"][1],
+                      "top": min(c["bbox"].y0 for c in ch), "bottom": max(c["bbox"].y1 for c in ch),
+                      "base": ch[0]["origin"][1],
                       "size": size, "color": r["color"], "single": r["_single"], "rows": 1, "lh": None})
     texts.sort(key=lambda t: (t["base"], t["x0"]))
     merged = []
@@ -121,6 +139,7 @@ def extract_page(page, assets_dir: Path, prefix: str) -> dict:
             prev["lh"] = gap
             prev["rows"] += 1
             prev["x1"] = max(prev["x1"], t["x1"])
+            prev["bottom"] = t["bottom"]
             prev["last_base"] = t["base"]
         else:
             t["last_base"] = t["base"]
@@ -173,20 +192,37 @@ def extract_page(page, assets_dir: Path, prefix: str) -> dict:
     # 3. images
     assets = {}
     assets_dir.mkdir(parents=True, exist_ok=True)
+    clips = [d["scissor"] for d in page.get_drawings(extended=True) if d.get("type") == "clip"]
     for n, info in enumerate(page.get_image_info(xrefs=True), 1):
         xref = info.get("xref")
-        r = pymupdf.Rect(info["bbox"]) & page.rect
-        if not xref or r.is_empty:
+        full = pymupdf.Rect(info["bbox"])
+        if not xref or (full & page.rect).is_empty:
             continue
         img = page.parent.extract_image(xref)
-        fname = f"{prefix}-img{n}.{img['ext']}"
-        (assets_dir / fname).write_bytes(img["image"])
+        data, ext = img["image"], img["ext"]
+        # an image shown through a clip: keep only the visible part (the clip that overlaps it most)
+        best = max(clips, key=lambda c: (full & c).get_area(), default=None)
+        vis = full & best if best is not None and not (full & best).is_empty else pymupdf.Rect(full)
+        vis &= page.rect
+        if vis != full:
+            with Image.open(io.BytesIO(data)) as src:
+                fx, fy = src.width / full.width, src.height / full.height
+                cut = src.crop((round((vis.x0 - full.x0) * fx), round((vis.y0 - full.y0) * fy),
+                                round((vis.x1 - full.x0) * fx), round((vis.y1 - full.y0) * fy)))
+                buf = io.BytesIO()
+                cut.save(buf, format="PNG")
+            data, ext = buf.getvalue(), "png"
+        r = vis
+        fname = f"{prefix}-img{n}.{ext}"
+        (assets_dir / fname).write_bytes(data)
         key = f"{prefix}_img{n}"
         assets[key] = fname
         elements.append({"type": "image", "name": f"Image/{n:02d}", "key": key, "fit": "FILL",
                          "x": r.x0 * s, "y": r.y0 * s, "w": r.width * s, "h": r.height * s})
 
-    # 4. text on top
+    # 4. text on top; weight is not in Type3 font names, so estimate it from ink density
+    pix = page.get_pixmap(matrix=pymupdf.Matrix(s, s), alpha=False)
+    shot = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
     for n, t in enumerate(merged, 1):
         size = round(t["size"] * s)
         lh = round(t["lh"] * s) if t["lh"] else round(size * 1.4)
@@ -196,9 +232,13 @@ def extract_page(page, assets_dir: Path, prefix: str) -> dict:
         y = min(y, H - h)
         # room for font differences (preview uses the local Korean font, not the PDF's)
         w = min((t["x1"] - t["x0"]) * s * 1.2 + size * 0.5, W - x)
+        dens = ink_density(shot, (t["x0"] * s, t["top"] * s, t["x1"] * s, t["bottom"] * s), t["color"], size * t["rows"])
+        note = f"굵기는 잉크 밀도 {dens:.2f}로 추정(기준 {BOLD_DENSITY})"
+        if abs(dens - BOLD_DENSITY) < 0.03:
+            note += ": 경계값이라 원본 그림으로 확인"
         elements.append({"type": "text", "name": f"Text/{n:02d}", "text": t["text"], "x": x, "y": y, "w": w, "h": h,
-                         "size": size, "lh": lh, "bold": size >= 40, "color": t["color"], "align": "LEFT",
-                         "note": "bold는 크기로 추정(40 이상): 원본 그림으로 확인"})
+                         "size": size, "lh": lh, "bold": dens >= BOLD_DENSITY, "color": t["color"], "align": "LEFT",
+                         "note": note})
 
     for e in elements:
         for k in ("x", "y", "w", "h"):

@@ -11,7 +11,7 @@ tools: Read, Write, Bash
 ## 순서
 1. `python tools/log.py start portfolio-reader --log JOB_DIR/run-log.jsonl` (호출자가 JOB_DIR을 준다)
 2. `data/config.json`의 `portfolio_rows`에서 행마다 포트폴리오와 자소서 파일명을 확인한다.
-3. **배치 추출(코드)**: 행마다 포트폴리오 PDF 전체 쪽을 뽑는다. 이미 `data/design/layouts/<row-key>/`가 있으면 건너뛴다.
+3. **배치 추출(코드)**: 행마다 포트폴리오 PDF 전체 쪽을 뽑는다. 이미 `data/design/layouts/<row-key>/`가 있으면 건너뛴다. 단, 호출자가 "다시 추출"을 지시하면(도구가 바뀐 경우) 폴더를 지우고 새로 뽑는다.
    `python tools/extract_layout.py <portfolio.pdf> --pages 1 2 ... N --out data/design/layouts/<row-key>`
    (쪽 수는 `python -c "import pymupdf,sys; print(pymupdf.open(sys.argv[1]).page_count)" <pdf>`로 확인)
 4. **예시 시안 템플릿(코드)**: `data/config.json`의 `design.figma_frames`가 있고 `data/design/templates/`가 없으면 실행한다.

@@ -114,6 +114,49 @@ def test_highlight_box_behind_text_stays_a_rect(tmp_path):
     assert els(slide, "text")[0]["color"] == "#FFFFFF"
 
 
+def test_duplicate_glyph_paths_are_not_rects(tmp_path):
+    """Figma가 같은 글자 칠을 두 번 그리는 경우(원본 1쪽 '즉시 입사 가능'): 둘 다 글자 색이다."""
+    doc = pymupdf.open()
+    page = doc.new_page(width=1920, height=1080)
+    page.insert_text((81, 1008), "ready now", fontsize=20, color=(0, 0, 0))
+    for _ in range(2):
+        page.draw_rect(pymupdf.Rect(81, 994, 160, 1010), color=None, fill=(0.435, 0.435, 0.435))
+    doc.save(tmp_path / "d.pdf")
+    slide = extract_page(pymupdf.open(tmp_path / "d.pdf")[0], tmp_path / "assets", "p01")
+    assert not els(slide, "rect")
+
+
+def test_bold_is_estimated_from_ink_not_size(tmp_path):
+    """굵기는 크기가 아니라 잉크 밀도로: 작은 굵은 글자는 bold, 큰 보통 글자는 bold 아님."""
+    doc = pymupdf.open()
+    page = doc.new_page(width=1920, height=1080)
+    page.insert_text((96, 200), "Small bold label", fontsize=24, fontname="hebo", color=(0, 0, 0))
+    page.insert_text((96, 400), "Large regular line", fontsize=46, fontname="helv", color=(0, 0, 0))
+    doc.save(tmp_path / "b.pdf")
+    slide = extract_page(pymupdf.open(tmp_path / "b.pdf")[0], tmp_path / "assets", "p01")
+    bold = {e["text"]: e["bold"] for e in els(slide, "text")}
+    assert bold == {"Small bold label": True, "Large regular line": False}
+
+
+def test_clipped_image_keeps_only_visible_part(tmp_path):
+    """PDF가 이미지를 잘라(clip) 보여 주면 보이는 영역만 자산으로 쓴다(원본 4쪽 이미지 겹침)."""
+    doc = pymupdf.open()
+    page = doc.new_page(width=1920, height=1080)
+    buf = io.BytesIO()
+    Image.new("RGB", (400, 200), (200, 30, 30)).save(buf, format="PNG")
+    page.insert_image(pymupdf.Rect(1200, 300, 1600, 500), stream=buf.getvalue())
+    page.clean_contents()
+    xref = page.get_contents()[0]
+    # clip to the left half (PDF y is bottom-up: top 300..500 -> 580..780)
+    doc.update_stream(xref, b"q 1200 580 200 200 re W n\n" + doc.xref_stream(xref) + b"\nQ")
+    doc.save(tmp_path / "c.pdf")
+    slide = extract_page(pymupdf.open(tmp_path / "c.pdf")[0], tmp_path / "assets", "p01")
+    img = els(slide, "image")[0]
+    assert (img["x"], img["w"]) == (1200, 200)
+    with Image.open(tmp_path / "assets" / slide["_assets"][img["key"]]) as im:
+        assert im.size == (200, 200)
+
+
 def test_mixed_sizes_on_one_line_split(tmp_path):
     """큰 숫자 + 작은 단위처럼 한 줄에 크기가 섞이면 따로 뽑는다(실제 포폴 결과 상자)."""
     doc = pymupdf.open()
