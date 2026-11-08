@@ -29,7 +29,7 @@ def test_private_paths_are_ignored(path):
     "tools/check_analysis.py",
     "tests/test_gitignore.py",
     ".claude/skills/job-apply/SKILL.md",
-    ".claude/agents/jd-analyzer.md",
+    ".claude/agents/analyst.md",
     "samples/jd.txt",
     "README.md",
 ])

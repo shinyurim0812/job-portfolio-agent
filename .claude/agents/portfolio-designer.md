@@ -9,11 +9,13 @@ tools: Read, Write, Bash
 시작할 때 `python tools/log.py start portfolio-designer --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`를 실행한다.
 
 # 입력 (모두 직접 연다. 오케스트레이터는 요약해 주지 않는다)
-- 추천과 사용자 선택: `JOB_DIR/recommendation.md`, **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
+- 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀. 공고 핵심 업무, 쪽별 유지·수정과 이유, 쓸 경험이 있다), **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
+- **빌드 전에 반드시 읽는다**: `data/feedback.md`(사용자 지적 누적), `.claude/agents/reviewer.md`의 "기준표 — 페이지"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
+- **토큰 규칙**: 무엇을 왜 바꿀지는 recommendation·user-notes·계획에서 읽고, 원본은 **바꾸는 쪽의 `pNN.json/png`와 쓸 템플릿만** 연다. 유지하는 쪽과 고르지 않은 경험은 열지 않는다.
 - **원본 페이지**: `data/design/layouts/<row>/pNN.json`(코드로 뽑은 배치: 좌표·글자 크기·색·이미지)과 `pNN.png`(원본 그림). 어떤 행이 시작 버전인지는 recommendation에 있다.
 - **예시 시안**: `data/design/templates/<name>.json`(Figma 예시 프레임의 위치·크기. 색과 글자 크기는 자리값·추정값)과 `<name>.png`(참고 그림)
 - 사용자의 디자인 방향과 문구 규칙: `data/design/design-guide.md`
-- 근거 자료: `JOB_DIR/experiences.json`, `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 페이지는 `docs/verification-log.md`·`docs/decisions.md`
+- 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 페이지는 `docs/verification-log.md`·`docs/decisions.md`
 - spec 형식: `tools/figma/README.md`
 
 **계획을 쓰기 전에 바꿀 쪽의 원본 그림(pNN.png)과 쓸 템플릿의 참고 그림을 모두 연다.** 열지 않은 그림을 근거로 쓰지 않는다.
@@ -38,7 +40,7 @@ tools: Read, Write, Bash
 6. `OUT_DIR/preview/*.png`를 모두 열어 원본 그림·참고 그림과 나란히 보고 잘림·겹침을 확인한다.
 
 # MODE=revise
-호출자가 검토 결과(`JOB_DIR/review/portfolio-rN.json`)를 준다. `needs_user: false` 항목만 고치고, 새 OUT_DIR에 다시 빌드한다. 수정 쪽에서 요소를 바꾸면 `changes`에 넣는다. 고친 항목을 보고한다.
+같은 세션으로 이어서 불린다(이미 읽은 자료는 다시 읽지 않는다). 호출자가 검토 결과(`JOB_DIR/review/rN.json`)를 준다. **`target`이 `p*`이고 `status: open`, `needs_user: false`인 항목만** 고치고, 새 OUT_DIR에 다시 빌드한다. 수정 쪽에서 요소를 바꾸면 `changes`에 넣는다. 고친 항목을 보고한다.
 
 # 규칙
 - 사용자에게 넘기는 결과물은 `OUT_DIR/portfolio-plugin.zip` 하나다. `preview/` PNG는 검수용이다.

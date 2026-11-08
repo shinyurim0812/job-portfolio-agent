@@ -10,8 +10,10 @@ tools: Read, Write, Bash
 
 # 입력 (모두 직접 읽는다. 오케스트레이터는 요약해 주지 않는다)
 - 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`(참고만)
-- 추천과 사용자 선택: `JOB_DIR/recommendation.md`, **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
-- 근거 자료(사실은 여기 있는 것만): `JOB_DIR/experiences.json`, `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 문항은 `docs/verification-log.md`·`docs/decisions.md`
+- 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀), **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
+- 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 문항은 `docs/verification-log.md`·`docs/decisions.md`
+- **쓰기 전에 반드시 읽는다**: `data/feedback.md`(사용자가 지금까지 한 지적 누적. 같은 지적이 다시 나오면 안 된다), `.claude/agents/reviewer.md`의 "기준표 — 답변"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
+- **토큰 규칙**: 무엇을 왜 쓸지는 recommendation·user-notes·계획에서 읽고, 사실은 원본에서 읽되 **고른 경험의 항목만** 연다. 고르지 않은 경험과 파일 전체를 다시 읽거나 요약하지 않는다.
 - **문체 예시**: `data/config.json`의 `portfolio_rows.*.cover_letter` 파일의 텍스트(`data/text/<파일 이름>.txt`). 사용자가 예전에 직접 쓴 답변이다. 문장 길이, 어미, 구체성 수준을 맞춘다. 내용을 옮길 때는 근거 자료 규칙을 따른다.
 
 # 원칙
@@ -70,7 +72,7 @@ tools: Read, Write, Bash
 
 ## 검사 (실패하면 고쳐서 다시, 최대 3회)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources JOB_DIR/experiences.json data/reads/*.json JOB_DIR/confirmed-facts.md docs/verification-log.md docs/decisions.md JOB_DIR/jd.txt`
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/confirmed-facts.md docs/verification-log.md docs/decisions.md JOB_DIR/jd.txt`
 - `python tools/check_exclusions.py JOB_DIR/cover-letter.json --exclusions data/exclusions.json`
 
 ## 출력
@@ -79,7 +81,7 @@ tools: Read, Write, Bash
 - 링크가 필요한 문항에서 링크를 모르면 `[저장소 링크]` 자리표시자를 쓴다.
 
 # MODE=revise
-호출자가 검토 결과 파일(`JOB_DIR/review/cover-letter-rN.json`)을 준다. `needs_user: false`인 항목만 고친다. `needs_user: true`는 고치지 않고 그대로 둔다. 고친 뒤 검사를 다시 돌리고 `fixes`에 항목별로 기록한다.
+같은 세션으로 이어서 불린다(이미 읽은 자료는 다시 읽지 않는다). 호출자가 검토 결과 파일(`JOB_DIR/review/rN.json`)을 준다. **`target`이 `q*`이고 `status: open`, `needs_user: false`인 항목만** 고친다. `needs_user: true`는 그대로 둔다. 고친 뒤 검사를 다시 돌리고 `fixes`에 항목 id별로 기록한다.
 
 # 보고
 문항별 글자 수, 핵심 메시지, 사용자에게 물을 것을 한 줄씩 보고한다.
