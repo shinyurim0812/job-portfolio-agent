@@ -131,3 +131,15 @@ def test_full_build_1920_with_shapes(tmp_path):
         code = z.read("code.js").decode("utf-8")
     assert not any(n.endswith((".png", ".pdf")) for n in names)
     assert '"width": 1920' in code or '"width":1920' in code
+
+
+@pytest.mark.skipif(not FONT.exists(), reason="Korean font not available")
+def test_each_build_gets_its_own_plugin_id_and_name(tmp_path):
+    # Figma keeps one development plugin per manifest id: a reused id runs the old code.
+    s1 = write_spec(tmp_path, [{"type": "rect", "name": "A", "x": 0, "y": 0, "w": 10, "h": 10, "fill": "#000000"}])
+    bp.build(s1, tmp_path / "v1", "포트폴리오", str(FONT))
+    s2 = write_spec(tmp_path, [{"type": "rect", "name": "A", "x": 20, "y": 0, "w": 10, "h": 10, "fill": "#000000"}])
+    bp.build(s2, tmp_path / "v2", "포트폴리오", str(FONT))
+    m1, m2 = (json.loads(zipfile.ZipFile(tmp_path / v / "portfolio-plugin.zip").read("manifest.json")) for v in ("v1", "v2"))
+    assert m1["id"] != m2["id"]
+    assert m1["name"] != m2["name"] and "v2" in m2["name"]

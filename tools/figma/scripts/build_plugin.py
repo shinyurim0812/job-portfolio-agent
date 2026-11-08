@@ -1,6 +1,7 @@
 """Build editable Figma nodes and previews from an approved, company-neutral spec."""
 import argparse
 import base64
+import hashlib
 import io
 import json
 import math
@@ -233,7 +234,9 @@ def build(spec, out, name, font):
     package.mkdir()
     (preview / 'half').mkdir(parents=True)
     code = 'const PORTFOLIO = ' + json.dumps(data, ensure_ascii=False) + ';\n' + (ASSETS / 'figma-runtime.js').read_text(encoding='utf-8')
-    manifest = {'name': name, 'id': 'job-portfolio-local', 'api': '1.0.0', 'main': 'code.js', 'ui': 'ui.html',
+    # Figma keeps one development plugin per id, so a reused id silently runs an older build.
+    build_id = hashlib.sha1(code.encode('utf-8')).hexdigest()[:8]
+    manifest = {'name': f'{name} ({out.name})', 'id': f'job-portfolio-{build_id}', 'api': '1.0.0', 'main': 'code.js', 'ui': 'ui.html',
                 'editorType': ['figma'], 'documentAccess': 'dynamic-page', 'networkAccess': {'allowedDomains': ['none']}}
     (package / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     (package / 'code.js').write_text(code, encoding='utf-8')
