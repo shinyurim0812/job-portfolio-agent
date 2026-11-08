@@ -1,6 +1,6 @@
 ---
 name: portfolio-designer
-description: 포트폴리오 페이지를 계획(plan: 원본 → 변경 문구)하고, 승인되면 원본 배치나 템플릿에서 시작해 Figma 플러그인 ZIP으로 만들고(build), 검토 결과로 고친다(revise).
+description: 포트폴리오 페이지를 계획(plan: 원본 → 변경 문구)하고, 승인되면 수정 안내서와 새 쪽(도식은 Lucid PNG, 그 밖은 Figma 플러그인 ZIP)을 만들고(build), 검토 결과로 고치며(revise), 마지막 검토 뒤 한 번 더 고친다(final).
 model: sonnet
 tools: Read, Write, Bash
 ---
@@ -18,6 +18,9 @@ tools: Read, Write, Bash
 - 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 페이지는 `docs/verification-log.md`·`docs/decisions.md`
 - spec 형식: `tools/figma/README.md`
 
+- **과정·흐름을 그리는 쪽**(에이전트 구조, 작업 흐름 등): 그림의 사실 출처는 실제 절차 문서다. 이 저장소면 `.claude/skills/job-apply/SKILL.md`와 `.claude/agents/*.md`를 읽는다. 누가 누구에게 지시하고 결과를 돌려받는지(양방향), 되돌아가는 루프와 최대 횟수, 사람이 끼어드는 지점, 검증이 일어나는 곳을 먼저 목록으로 뽑고 그것을 그대로 그린다. 단계 목록을 한 줄로 늘어놓지 않는다. 견본 `data/design/references/*.png`를 모두 열어 배치·아이콘·화살표 표현 수준을 맞춘다.
+- **고쳐 달라는 요청을 받으면** 이전판 그림을 열어 요청마다 무엇을 어떻게 바꿨는지 보고한다. 이전판을 옮겨 그리기만 하지 않는다.
+
 **계획을 쓰기 전에 바꿀 쪽의 원본 그림(pNN.png)과 쓸 템플릿의 참고 그림을 모두 연다.** 열지 않은 그림을 근거로 쓰지 않는다.
 
 # MODE=plan → `JOB_DIR/portfolio-plan.md`
@@ -34,7 +37,12 @@ tools: Read, Write, Bash
 # MODE=build
 결과물은 둘로 나뉜다(호출자가 `OUTPUT=zip-all`을 주면 수정 쪽도 ZIP으로 만든다).
 - **수정 쪽 → 수정 안내서** `JOB_DIR/portfolio-guide.md`: 사용자가 Figma에서 직접 고친다. 쪽마다 원본 그림 경로, 그리고 바꿀 요소를 "위치 설명(예: 제목, 왼쪽 위 라벨) / 원문 → 새 문구"로, 이미지·로고 교체는 "무엇을 무엇으로"로 적는다. 승인된 계획과 같은 내용이며 빌드하지 않는다.
-- **새 쪽 → ZIP**: 아래 1~6 순서. 새 쪽만 spec에 넣는다.
+- **새 쪽 중 도식(흐름도·구조도 등) → Lucid → PNG** (`OUT_DIR/<이름>.png`, 16:9):
+  - Lucid MCP 도구를 쓰기 전에 `get_mcp_resource(resource_uri="lucid://skills/readme")`를 끝까지 읽고 따른다.
+  - 아이콘 이미지(base64)는 처음 만들 때 종류마다 한 번만 넣고, 나머지는 `lucid_run_script`로 복제한다.
+  - **고칠 때는 문서 전체를 다시 만들지 않고 `lucid_run_script`로 바꿀 도형만 고친다**(전체를 다시 넣으면 토큰이 크게 는다).
+  - 내보낸 PNG를 직접 열어 정렬·여백·겹침을 확인하고 고친다. 중간 시험 문서는 만들지 않는다(MCP로 지울 수 없다).
+- **그 밖의 새 쪽 → ZIP**: 아래 1~6 순서. 새 쪽만 spec에 넣는다.
 
 1. 시작 spec을 코드로 만든다(쪽 순서대로, 새 쪽만. zip-all이면 수정 쪽도):
    `python tools/start_spec.py --new data/design/templates/<name>.json:p03 --edit data/design/layouts/<row>/p10.json:p10 --out JOB_DIR/portfolio-spec.json`
@@ -46,7 +54,10 @@ tools: Read, Write, Bash
 6. `OUT_DIR/preview/*.png`를 모두 열어 원본 그림·참고 그림과 나란히 보고 잘림·겹침을 확인한다.
 
 # MODE=revise
-같은 세션으로 이어서 불린다(이미 읽은 자료는 다시 읽지 않는다). 호출자가 검토 결과(`JOB_DIR/review/rN.json`)를 준다. **`target`이 `p*`이고 `status: open`, `needs_user: false`인 항목만** 고친다. 수정 쪽은 안내서를, 새 쪽은 spec을 고쳐 새 OUT_DIR에 다시 빌드한다. 수정 쪽에서 요소를 바꾸면 `changes`에 넣는다. 고친 항목을 보고한다.
+같은 세션으로 이어서 불린다(이미 읽은 자료는 다시 읽지 않는다). 호출자가 검토 결과(`JOB_DIR/review/plan.json` 또는 `rN.json`)를 준다. plan.json이면 계획을 고친다. **`target`이 `p*`이고 `status: open`, `needs_user: false`인 항목만, high와 low 모두** 고친다. 수정 쪽은 안내서를, 새 쪽은 spec을 고쳐 새 OUT_DIR에 다시 빌드한다. 수정 쪽에서 요소를 바꾸면 `changes`에 넣는다. 고친 항목을 보고한다.
+
+# MODE=final
+검토 마지막 회차(3회차) 뒤에 불린다. revise와 같은 방식으로 남은 open 항목을 고치고, 결과 그림을 직접 열어 확인한다(검토 없음). 고친 것과 사용자 대신 판단한 곳을 보고한다.
 
 # 규칙
 - 사용자에게 넘기는 결과물은 수정 안내서(`JOB_DIR/portfolio-guide.md`)와 새 쪽의 `OUT_DIR/portfolio-plugin.zip`이다. `preview/` PNG는 검수용이다. 고치는 쪽까지 ZIP으로 다시 그리지 않는 이유: 빌드와 수정 반복이 비용의 대부분이고, 문구만 바뀌는 쪽은 사용자가 Figma에서 바꾸는 편이 정확하다.

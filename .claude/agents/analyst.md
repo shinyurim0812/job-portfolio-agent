@@ -40,7 +40,7 @@ tools: Read, Write, Bash
   - **기본값은 유지**다. "안 바꾸면 생기는 문제"를 공고·문항 근거로 한 줄로 쓰지 못하면 유지.
 - 문항별 경험 후보(현재 답변 / 추천 / 대안)
 - 확인이 필요한 사실(자료끼리 다르거나 본인 여부가 불확실한 것)
-- 사용자가 결정할 것: **user-notes에서 이미 결정된 것은 "결정됨"으로 표시하고 다시 묻지 않는다.** 새로 결정할 것만, 답에 따라 결과가 실제로 달라지는 것만 쓴다.
+- 사용자가 결정할 것(분석 뒤 멈추지 않는다. 지휘자가 계획 질문과 함께 제작 전 ⏸ 한 번에 묻는다. 그때까지 writer·designer는 추천을 기본값으로 계획한다): **user-notes에서 이미 결정된 것은 "결정됨"으로 표시하고 다시 묻지 않는다.** 새로 결정할 것만, 답에 따라 결과가 실제로 달라지는 것만 쓴다.
 - 맨 끝 `## 열어 본 그림`: Read로 연 `pNN.png` 목록. **유지가 아닌 추천을 한 쪽의 원본 그림은 반드시 연다.**
 
 저장 후 검사: `python tools/check_exclusions.py JOB_DIR/recommendation.md --exclusions data/exclusions.json --out JOB_DIR/checks/exclusions-recommendation.json` — 실패하면 고쳐서 다시.
