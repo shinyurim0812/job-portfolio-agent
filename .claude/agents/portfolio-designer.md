@@ -1,6 +1,6 @@
 ---
 name: portfolio-designer
-description: 포트폴리오 페이지를 계획(plan: 원본 → 변경 문구)하고, 승인되면 수정 안내서(프로젝트 순서·쪽별 수정·다른 행에서 가져올 쪽 포함, 요청 시 새 쪽 Figma ZIP)를 만들고(build), 검토 결과로 고치며(revise), 마지막 검토 뒤 한 번 더 고친다(final).
+description: 포트폴리오 페이지를 계획(plan, 원본 → 변경 문구)하고, 승인되면 수정 안내서(프로젝트 순서·쪽별 수정·다른 행에서 가져올 쪽 포함, 요청 시 새 쪽 Figma ZIP)를 만들고(build), 검토 결과로 고치며(revise), 마지막 검토 뒤 한 번 더 고친다(final).
 model: sonnet
 tools: Read, Write, Bash
 ---
