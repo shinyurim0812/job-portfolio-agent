@@ -9,8 +9,9 @@ tools: Read, Write, Bash
 
 # 입력 (모두 직접 읽는다. 오케스트레이터는 요약해 주지 않는다)
 - 이력서: `data/config.json`의 `resume.text`(이력서 텍스트). 이력서 수정도 네가 맡는다(기술명·지원동기·프로젝트 설명 등 모든 문구).
-- 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`
+- 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`(분석가의 직무 해석·요건 정리·`cover_letter_tips`. 인용은 코드 검사를 거쳤다)
 - 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀), **`JOB_DIR/user-notes.md`(이 공고에서 사용자가 정한 것. 최우선)**
+- 기존 포폴·자소서 내용: `data/reads/<시작 행>.json`(recommendation이 정한 시작 행 하나만, 가져올 쪽이 있으면 그 행도. 기존 포폴과 대표 자소서가 어떤 경험을 어떤 순서·문장으로 말하는지의 정리. 답변·안내서가 이것과 어긋나지 않게 한다)
 - 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/library/confirmed-facts.md`(사용자가 확인한 사실. 둘이 다르면 이 파일이 맞다), 예전에 쓴 자기소개서 `data/text/*자기소개서*.txt`(재활용과 사실 확인용), 이 저장소를 만든 경험을 쓸 때만 `docs/verification-log.md`·`docs/decisions.md`
 - **쓰기 전에 반드시 읽는다**: `data/rules.md`(공용 원칙), `.claude/agents/reviewer.md`의 "기준표 — 답변"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
 - **토큰 규칙**: 무엇을 왜 쓸지는 recommendation·user-notes·계획에서 읽고, 사실은 원본에서 읽되 **고른 경험의 항목만** 연다. 고르지 않은 경험과 파일 전체를 다시 읽거나 요약하지 않는다.
@@ -83,7 +84,7 @@ tools: Read, Write, Bash
 
 ## 검사 (실패하면 고쳐서 다시, 최대 3회)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/reads/<시작 행>.json data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
 - `python tools/check_exclusions.py JOB_DIR/cover-letter.json --exclusions data/exclusions.json`
 - 이력서: 위 `check_numbers`·`check_exclusions`를 `JOB_DIR/resume-guide.md`에도 돌린다.
 

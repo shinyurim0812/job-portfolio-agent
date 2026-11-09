@@ -20,11 +20,11 @@ tools: Read, Write, Bash
 - 페이지: `OUT_DIR/preview/*.png` 또는 `OUT_DIR/*.png`(모두), `JOB_DIR/portfolio-spec.json`(있으면), 이전판 그림(호출자가 주면), 흐름 쪽은 `data/design/references/*.png`, 쪽마다 기준 그림(`base_spec`과 같은 이름의 `.png`, 새 쪽은 템플릿 `reference`)
 - 승인된 계획: `JOB_DIR/cover-letter-plan.md`, `JOB_DIR/portfolio-plan.md` / 사용자의 말: `JOB_DIR/user-notes.md`
 - 공용 원칙: `data/rules.md`
-- 근거 자료: `data/library/experiences.json`, `data/reads/*.json`, `data/library/confirmed-facts.md`(사용자가 확인한 사실), 예전 자기소개서 `data/text/*자기소개서*.txt`, 이 저장소를 다룬 답변·쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
+- 근거 자료: `data/library/experiences.json`, `data/reads/<시작 행>.json`(recommendation이 정한 시작 행 하나만, 가져올 쪽이 있으면 그 행도. 기존 포폴과 대표 자소서가 어떤 경험을 어떤 순서·문장으로 말하는지의 정리. 답변·안내서가 이것과 어긋나지 않게 한다), `data/library/confirmed-facts.md`(사용자가 확인한 사실), 예전 자기소개서 `data/text/*자기소개서*.txt`, 이 저장소를 다룬 답변·쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
 
 ## 코드 검사 (먼저 돌리고 결과를 항목에 반영)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/reads/<시작 행>.json data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
 - `python tools/check_layout_diff.py JOB_DIR/portfolio-spec.json --out JOB_DIR/checks/layout-diff.json`
 
 ## 기준표 — 답변 (문항마다)

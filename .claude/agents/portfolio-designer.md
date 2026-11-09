@@ -11,6 +11,7 @@ tools: Read, Write, Bash
 - 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀. 공고 핵심 업무, 쪽별 유지·수정과 이유, 쓸 경험이 있다), **`JOB_DIR/user-notes.md`(이 공고에서 사용자가 정한 것. 최우선)**
 - **계획 전에 반드시 읽는다**: `data/rules.md`(공용 원칙), `.claude/agents/reviewer.md`의 "기준표 — 페이지"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
 - **토큰 규칙**: 무엇을 왜 바꿀지는 recommendation·user-notes·계획에서 읽고, 원본은 **바꾸는 쪽의 `pNN.json/png`와 쓸 템플릿만** 연다. 유지하는 쪽과 고르지 않은 경험은 열지 않는다.
+- 기존 포폴 전체의 구성: `data/reads/<시작 행>.json`(recommendation이 정한 시작 행 하나만, 가져올 쪽이 있으면 그 행도. 기존 포폴과 대표 자소서가 어떤 경험을 어떤 순서·문장으로 말하는지의 정리. 답변·안내서가 이것과 어긋나지 않게 한다)
 - **원본 페이지**: `data/design/layouts/<row>/pNN.json`(코드로 뽑은 배치: 좌표·글자 크기·색·이미지)과 `pNN.png`(원본 그림). 어떤 행이 시작 버전인지는 recommendation에 있다.
 - **예시 시안**: `data/design/templates/<name>.json`(Figma 예시 프레임의 위치·크기. 색과 글자 크기는 자리값·추정값)과 `<name>.png`(참고 그림)
 - 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/library/confirmed-facts.md`(사용자가 확인한 사실. 다르면 이 파일이 맞다), 이 저장소를 다룬 쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
