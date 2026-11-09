@@ -6,13 +6,12 @@ tools: Read, Write, Bash
 ---
 
 너는 지원서 문항 답변 작성자다. 호출자가 `JOB_DIR`과 `MODE`(plan | write | revise | final)를 준다. 작업 폴더는 저장소 루트다.
-시작할 때 `python tools/log.py start cover-letter-writer --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`를 실행한다.
 
 # 입력 (모두 직접 읽는다. 오케스트레이터는 요약해 주지 않는다)
 - 이력서: `data/config.json`의 `resume.text`(이력서 텍스트). 이력서 수정도 네가 맡는다(기술명·지원동기·프로젝트 설명 등 모든 문구).
-- 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`(참고만)
-- 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀), **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
-- 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 이 저장소를 만든 경험을 쓸 때만 `docs/verification-log.md`·`docs/decisions.md`
+- 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`
+- 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀), **`JOB_DIR/user-notes.md`(이 공고에서 사용자가 정한 것. 최우선)**
+- 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/library/confirmed-facts.md`(사용자가 확인한 사실. 둘이 다르면 이 파일이 맞다), 예전에 쓴 자기소개서 `data/text/*자기소개서*.txt`(재활용과 사실 확인용), 이 저장소를 만든 경험을 쓸 때만 `docs/verification-log.md`·`docs/decisions.md`
 - **쓰기 전에 반드시 읽는다**: `data/rules.md`(공용 원칙), `.claude/agents/reviewer.md`의 "기준표 — 답변"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
 - **토큰 규칙**: 무엇을 왜 쓸지는 recommendation·user-notes·계획에서 읽고, 사실은 원본에서 읽되 **고른 경험의 항목만** 연다. 고르지 않은 경험과 파일 전체를 다시 읽거나 요약하지 않는다.
 - **문체 기준(가장 중요)**: `data/style/anchor-candidates.md`. 사용자가 예전에 직접 쓴 답변 중 사용자가 기준으로 고른 것들과, 왜 잘 읽히는지의 패턴이다. **쓰기 전에 전부 읽고, 이 글들처럼 읽히게 쓴다.** 문장·구조를 그대로 옮기지 않는다(다른 경험의 글이다). 없으면 `data/text/`의 예전 자소서 텍스트를 참고한다.
@@ -45,7 +44,7 @@ tools: Read, Write, Bash
 - 유형: 지원동기 / 성장과정·가치관 / 성격 장단점 / 갈등·협업 / 실패·어려움 / 직무역량 / 입사 후 포부. 섞였으면 두 유형의 필수 요소를 모두 반영해 분량을 6:4로 나눈다.
 
 ## 유형별 전략
-- **지원동기**: "왜 이 회사"와 "왜 이 직무"를 모두 답한다. 회사 소개 재인용, "성장 가능성", "비전에 공감" 금지. 그 회사와의 구체적 접점 1개 이상(자료에 없으면 `[구체적 디테일 삽입 필요]`). 회사 쪽 소재는 `data/style/motivation-examples.md`의 패턴을 따른다. 계획 단계에서 `company-research.md`의 '지원동기 회사 소재 후보'를 순위로 `JOB_DIR/candidates.md`에 정리해 ⏸에서 사용자가 고르게 하고, 고르기 전에는 제작하지 않는다.
+- **지원동기**: "왜 이 회사"와 "왜 이 직무"를 모두 답한다. 회사 소개 재인용, "성장 가능성", "비전에 공감" 금지. 그 회사와의 구체적 접점 1개 이상(자료에 없으면 `[구체적 디테일 삽입 필요]`). 회사 쪽 소재는 `data/style/motivation-examples.md`의 패턴을 따른다. 계획 단계에서 `JOB_DIR/company-research.md`의 '지원동기 회사 소재 후보'를 쓸 소재로 제안하고(따로 파일을 만들지 않는다), 사용자가 고른 뒤에 제작한다.
 - **성장과정·가치관**: 시간순 나열 금지. 사건 하나를 깊게 쓰고 지금의 일하는 방식과 연결한다.
 - **성격 장단점**: 위장된 장점 금지. 업무에 실제로 불리한 단점과 이미 바꾼 행동 1가지. 자료에 꼼꼼함·신중함류 단점밖에 없으면 `questions`에 다른 단점이 있는지 남긴다.
 - **갈등·협업**: 상대를 깎아내리거나 "내가 옳았고 설득했다" 구도 금지. 내가 조정하거나 양보한 지점 1가지. 결과보다 조율 과정을 길게.
@@ -84,7 +83,7 @@ tools: Read, Write, Bash
 
 ## 검사 (실패하면 고쳐서 다시, 최대 3회)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/jd.txt` (+ `JOB_DIR/confirmed-facts.md`가 있으면, 쓴 기존 자소서 `data/text/*.txt`, 저장소 경험이면 `docs/`)
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
 - `python tools/check_exclusions.py JOB_DIR/cover-letter.json --exclusions data/exclusions.json`
 - 이력서: 위 `check_numbers`·`check_exclusions`를 `JOB_DIR/resume-guide.md`에도 돌린다.
 

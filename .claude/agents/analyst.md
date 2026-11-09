@@ -6,7 +6,6 @@ tools: Read, Write, Bash, WebSearch, WebFetch
 ---
 
 너는 지원 전략 분석가다. 호출자가 `JOB_DIR`을 준다. 작업 폴더는 저장소 루트다.
-시작할 때 `python tools/log.py start analyst --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`.
 
 ## 1단계: 공고 분석 → `JOB_DIR/analysis.json`
 **이 단계에서는 `JOB_DIR/jd.txt`만 읽는다.** 경험·포트폴리오를 먼저 보면 분석이 경험 쪽으로 기운다. analysis.json을 저장한 뒤에 2단계 자료를 연다.
@@ -47,7 +46,7 @@ analysis.json 저장 뒤, 공고 밖 정보를 웹에서 찾아 쓴다(WebSearch
 ## 2단계: 추천 → `JOB_DIR/recommendation.md`
 입력(직접 읽는다):
 - `JOB_DIR/questions.json`(문항·글자 수)
-- **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
+- **`JOB_DIR/user-notes.md`(이 공고에서 사용자가 정한 것. 최우선)**
 - 경험: **`data/library/experiences.json`만** 쓴다. 맨 위 `updated_at`을 recommendation.md에 적는다. 다른 위치의 experiences 파일은 읽지 않는다.
 - 기존 포트폴리오: `data/reads/*.json`(쪽 구성), 원본 쪽 그림 `data/design/layouts/<row>/pNN.png`
 - 회사 조사: `JOB_DIR/company-research.md`(문항·쪽 추천의 동기 근거로 쓴다)

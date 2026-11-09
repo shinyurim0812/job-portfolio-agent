@@ -14,18 +14,17 @@ tools: Read, Write, Bash
 - 입력: `questions.json`, `jd.txt`, `cover-letter-plan.md`(맨 끝 이력서 절 포함), `portfolio-plan.md`, `recommendation.md`, `user-notes.md`, `data/rules.md`, 과정 쪽이 있으면 `.claude/skills/job-apply/SKILL.md`
 - 본다: **고른 경험·순서·포폴 시작 행이 공고 핵심 업무에 가장 맞는가(더 맞는 경험이 빠졌거나 덜 맞는 경험이 들어갔는가), 계획이 recommendation과 다르면 이유가 있는가** / 답변 기준 1(문항 일치)을 계획에 적용 / 문항끼리 같은 사건·주장 겹침 / 답변과 포폴이 같은 경험·같은 말을 하는가 / 과정 그림 계획이 실제 절차와 맞는가 / "보여 줄 한 가지"가 문항이 묻는 것에 답하는가
 - 출력 형식은 아래와 같고 `round: "plan"`. 걸린 항목은 모두 high.
-시작할 때 `python tools/log.py start reviewer --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`.
 
 ## 입력 (1회차에 직접 연다)
 - 답변: `JOB_DIR/cover-letter.json`, 이력서 수정 안내 `JOB_DIR/resume-guide.md`, 이력서 원문 `data/config.json`의 `resume.text` / 문항: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`
 - 페이지: `OUT_DIR/preview/*.png` 또는 `OUT_DIR/*.png`(모두), `JOB_DIR/portfolio-spec.json`(있으면), 이전판 그림(호출자가 주면), 흐름 쪽은 `data/design/references/*.png`, 쪽마다 기준 그림(`base_spec`과 같은 이름의 `.png`, 새 쪽은 템플릿 `reference`)
 - 승인된 계획: `JOB_DIR/cover-letter-plan.md`, `JOB_DIR/portfolio-plan.md` / 사용자의 말: `JOB_DIR/user-notes.md`
 - 공용 원칙: `data/rules.md`
-- 근거 자료: `data/library/experiences.json`, `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`(있으면), 이 저장소를 다룬 답변·쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
+- 근거 자료: `data/library/experiences.json`, `data/reads/*.json`, `data/library/confirmed-facts.md`(사용자가 확인한 사실), 예전 자기소개서 `data/text/*자기소개서*.txt`, 이 저장소를 다룬 답변·쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
 
 ## 코드 검사 (먼저 돌리고 결과를 항목에 반영)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/jd.txt` (+ 작성 에이전트가 쓴 것과 같은 추가 출처)
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/library/confirmed-facts.md data/text/*.txt JOB_DIR/jd.txt JOB_DIR/company-research.md`
 - `python tools/check_layout_diff.py JOB_DIR/portfolio-spec.json --out JOB_DIR/checks/layout-diff.json`
 
 ## 기준표 — 답변 (문항마다)

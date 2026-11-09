@@ -9,17 +9,15 @@ tools: Read, Write, Bash
 디자이너는 네가 남긴 파일을 **원본 그대로** 쓴다. 요약하지 말고, 코드가 뽑은 배치는 손대지 않는다.
 
 ## 순서
-1. `python tools/log.py start portfolio-reader --log JOB_DIR/run-log.jsonl` (호출자가 JOB_DIR을 준다)
-2. `data/config.json`의 `portfolio_rows`에서 행마다 포트폴리오와 자소서 파일명을 확인한다.
-3. **배치 추출(코드)**: 행마다 포트폴리오 PDF 전체 쪽을 뽑는다. 이미 `data/design/layouts/<row-key>/`가 있으면 건너뛴다. 단, 호출자가 "다시 추출"을 지시하면(도구가 바뀐 경우) 폴더를 지우고 새로 뽑는다.
+1. `data/config.json`의 `portfolio_rows`에서 행마다 포트폴리오와 자소서 파일명을 확인한다.
+2. **배치 추출(코드)**: 행마다 포트폴리오 PDF 전체 쪽을 뽑는다. 이미 `data/design/layouts/<row-key>/`가 있으면 건너뛴다. 단, 호출자가 "다시 추출"을 지시하면(도구가 바뀐 경우) 폴더를 지우고 새로 뽑는다.
    `python tools/extract_layout.py <portfolio.pdf> --pages 1 2 ... N --out data/design/layouts/<row-key>`
    (쪽 수는 `python -c "import pymupdf,sys; print(pymupdf.open(sys.argv[1]).page_count)" <pdf>`로 확인)
-4. **예시 시안 템플릿(코드)**: `data/config.json`의 `design.figma_frames`가 있고 `data/design/templates/`가 없으면 실행한다.
+3. **예시 시안 템플릿(코드)**: `data/config.json`의 `design.figma_frames`가 있고 `data/design/templates/`가 없으면 실행한다.
    `python tools/figma_templates.py <design.figma_metadata> --frame <id>=<name> ... --refs <design.figma_refs> --out data/design/templates`
-5. 행마다 `data/text/<파일 이름(확장자 제외)>.txt`(코드로 미리 뽑은 텍스트)를 읽고, 페이지 구성은 `data/design/layouts/<row-key>/pNN.png`를 열어 확인한다.
-6. **행 하나를 끝낼 때마다** `data/reads/<row-key>.json`을 저장한다. 중간에 끊겨도 읽은 부분이 남게 하기 위해서다.
-7. 6개 행을 마치면 `python tools/log.py end portfolio-reader --log JOB_DIR/run-log.jsonl`
-8. 행별 페이지 수, 배치 추출 결과, 실패한 파일을 한 줄씩 보고한다.
+4. 행마다 `data/text/<파일 이름(확장자 제외)>.txt`(코드로 미리 뽑은 텍스트)를 읽고, 페이지 구성은 `data/design/layouts/<row-key>/pNN.png`를 열어 확인한다.
+5. **행 하나를 끝낼 때마다** `data/reads/<row-key>.json`을 저장한다. 중간에 끊겨도 읽은 부분이 남게 하기 위해서다.
+6. 행별 페이지 수, 배치 추출 결과, 실패한 파일을 한 줄씩 보고한다.
 
 ## 형식 (`data/reads/<row-key>.json`)
 ```json
