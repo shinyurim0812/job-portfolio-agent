@@ -62,7 +62,7 @@ description: 채용공고 하나로 지원 자료를 만든다. 분석가가 공
    - 수정 요청(경험 변경 포함)이 있으면 해당 문항·쪽만 계획을 다시 쓰고 다시 ⏸.
 5. **제작 (병렬)**: 같은 세션으로 writer `MODE=write`(네 문항을 한 번에), designer `MODE=build`(OUT_DIR = `output/<slug>/vN`).
    - 포폴 결과물: 기본은 **수정 안내서**(`portfolio-guide.md`) 하나다. 프로젝트 순서, 쪽별 수정, 다른 행에서 가져올 쪽, 새 쪽 문구까지 담는다(결정 21). 사용자가 요청할 때만 `OUTPUT=zip`(새 쪽 ZIP, 결정 19) 또는 `OUTPUT=zip-all`.
-   - 이력서: analyst가 `recommendation.md`의 `## 이력서 수정` 절에 쓴 것을 그대로 전달한다(문구만).
+   - 이력서: writer가 답변과 함께 `resume-guide.md`(기술명·지원동기·프로젝트 문구, 배치는 그대로)를 쓴다. 계획 확인·검토를 답변과 같이 받는다(결정 22).
 6. **검토 루프** (유일한 회차 규칙):
    - 1회차: reviewer가 전체를 본다 → `review/r1.json`.
    - open 항목(high·low 모두, `needs_user: false`)을 writer(`q*`)·designer(`p*`)에 `MODE=revise`로 넘긴다(병렬).
@@ -72,9 +72,9 @@ description: 채용공고 하나로 지원 자료를 만든다. 분석가가 공
    - 3회차 뒤에도 high가 남으면 자료·결정 부족이다. 더 돌리지 않고 그 항목을 한 줄 질문(`needs_user`)으로 사용자에게 묻는다. 답을 받으면 그 항목만 고치고 1회 검토한다.
    - 답변 하나·쪽 하나를 통째로 다시 쓰면 새 초안이다. 그 대상만 1회차부터 센다.
    - 전달 뒤 사용자가 수정을 요청하면: `user-notes.md`에 적고 → 해당 에이전트 revise → 같은 루프(이전판 그림을 reviewer에게 함께 줌) → 그다음에 보여 준다.
-7. **확인 (코드, 지휘자)**: `check_length`, `check_numbers`(답변·spec, sources에 `data/library/experiences.json`), `check_exclusions`, `check_layout_diff`(spec이 있을 때), `python -m pytest -q`. 결과만 보고 내용을 고치지 않는다.
+7. **확인 (코드, 지휘자)**: `check_length`, `check_numbers`(답변·이력서 안내·spec, sources에 `data/library/experiences.json`), `check_exclusions`, `check_layout_diff`(spec이 있을 때), `python -m pytest -q`. 결과만 보고 내용을 고치지 않는다.
 8. **전달 (자동, 사용자가 묻기 전에)**:
-   - `output/<slug>/DELIVERY.md`에 적는 것: 답변·수정 안내서·이력서 수정 절·새 쪽 경로, 코드 검사 결과, **변경 기록**(회차별로 무엇을 왜 고쳤는지), **에이전트가 사용자 대신 판단한 곳**, 남은 것과 `needs_user`, 사용자가 직접 할 일
+   - `output/<slug>/DELIVERY.md`에 적는 것: 답변·포폴 수정 안내서·이력서 수정 안내(`resume-guide.md`)·새 쪽 경로, 코드 검사 결과, **변경 기록**(회차별로 무엇을 왜 고쳤는지), **에이전트가 사용자 대신 판단한 곳**, 남은 것과 `needs_user`, 사용자가 직접 할 일
    - 새 쪽 그림과 답변 원문을 대화에 보여 준다.
 
 ## 사용 한도로 끊겼을 때

@@ -11,13 +11,13 @@ tools: Read, Write, Bash
 
 ## MODE=plan-review → `JOB_DIR/review/plan.json`
 제작 전, 사용자 확인 전에 계획의 **방향만** 본다. 문장 다듬기는 보지 않는다.
-- 입력: `questions.json`, `jd.txt`, `cover-letter-plan.md`, `portfolio-plan.md`, `recommendation.md`, `user-notes.md`, `data/feedback.md`, 과정 쪽이 있으면 `.claude/skills/job-apply/SKILL.md`
+- 입력: `questions.json`, `jd.txt`, `cover-letter-plan.md`(맨 끝 이력서 절 포함), `portfolio-plan.md`, `recommendation.md`, `user-notes.md`, `data/feedback.md`, 과정 쪽이 있으면 `.claude/skills/job-apply/SKILL.md`
 - 본다: 답변 기준 1(문항 일치)을 계획에 적용 / 문항끼리 같은 사건·주장 겹침 / 답변과 포폴이 같은 경험·같은 말을 하는가 / 과정 그림 계획이 실제 절차와 맞는가 / "보여 줄 한 가지"가 문항이 묻는 것에 답하는가
 - 출력 형식은 아래와 같고 `round: "plan"`. 걸린 항목은 모두 high.
 시작할 때 `python tools/log.py start reviewer --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`.
 
 ## 입력 (1회차에 직접 연다)
-- 답변: `JOB_DIR/cover-letter.json` / 문항: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`
+- 답변: `JOB_DIR/cover-letter.json`, 이력서 수정 안내 `JOB_DIR/resume-guide.md`, 이력서 원문 `data/config.json`의 `resume.text` / 문항: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`
 - 페이지: `OUT_DIR/preview/*.png` 또는 `OUT_DIR/*.png`(모두), `JOB_DIR/portfolio-spec.json`(있으면), 이전판 그림(호출자가 주면), 흐름 쪽은 `data/design/references/*.png`, 쪽마다 기준 그림(`base_spec`과 같은 이름의 `.png`, 새 쪽은 템플릿 `reference`)
 - 승인된 계획: `JOB_DIR/cover-letter-plan.md`, `JOB_DIR/portfolio-plan.md` / 사용자의 말: `JOB_DIR/user-notes.md`
 - 사용자 피드백 누적: `data/feedback.md`
@@ -39,6 +39,7 @@ tools: Read, Write, Bash
 7. **문체 기준**: `data/style/anchor-candidates.md`의 사용자 예전 답변과 나란히 읽었을 때 같은 사람이 쓴 글처럼 읽히는가. 첫 문장, 이유로 잇기, 장면, 한계 위치, 마무리를 본다.
 8. **문항 간 겹침**: 다른 문항과 같은 사건·같은 주장을 쓰는가. 같은 프로젝트라도 다른 장면이면 괜찮다. **겹치면 무조건 high.**
 9. **답변↔포폴 일치**: 같은 경험을 답변과 포폴이 다르게 말하는가(수치, 역할, 결과). **다르면 무조건 high.**
+10. **이력서** (`target: resume`): 기준 4(근거)와 9(답변·포폴과 같은 말)를 이력서 수정 안내에도 적용한다. 넣은 기술명마다 경험 자료 근거가 있는가. 길이가 원문과 크게 다르면 이유가 적혀 있는가.
 
 **무조건 high**: 문항·공고 불일치(1), 근거 없는 사실(4), 문항 간 겹침(8), 답변↔포폴 불일치(9), 과정 그림↔실제 절차 불일치(페이지 7), 요청 미반영(페이지 8). 나머지는 읽는 사람에게 미치는 영향으로 정한다.
 
@@ -61,7 +62,7 @@ tools: Read, Write, Bash
    "problem": "면접관에게 어떻게 읽히는가/보이는가", "fix": "구체적으로 어떻게 고칠지(근거 자료 항목 포함)",
    "severity": "high | low", "needs_user": false, "status": "open | resolved"}]}
 ```
-- `target`으로 고칠 에이전트가 갈린다: `q*`는 작성, `p*`는 디자인.
+- `target`으로 고칠 에이전트가 갈린다: `q*`·`resume`은 작성, `p*`는 디자인.
 - `needs_user: true`는 근거 자료에 없는 사실·본인 생각이 필요하고, **근거 있는 문장으로 바꿔서는 해결되지 않을 때만**. 바꿀 수 있으면 `fix`에 바꿀 문장 방향을 쓰고 `needs_user: false`.
 - 2·3회차: 이전 회차의 open 항목을 다시 보고 `status`를 갱신하고, 고치면서 새로 생긴 문제만 추가한다.
 - 3회차에서도 해결되지 않은 high는 문장 문제가 아니라 자료·결정 부족이다. `needs_user: true`로 바꾸고 `problem`에 사용자에게 물을 한 줄 질문을 쓴다.
