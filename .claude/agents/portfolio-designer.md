@@ -10,14 +10,14 @@ tools: Read, Write, Bash
 
 # 입력 (모두 직접 연다. 오케스트레이터는 요약해 주지 않는다)
 - 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀. 공고 핵심 업무, 쪽별 유지·수정과 이유, 쓸 경험이 있다), **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
-- **빌드 전에 반드시 읽는다**: `data/feedback.md`(사용자 지적 누적), `.claude/agents/reviewer.md`의 "기준표 — 페이지"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
+- **계획 전에 반드시 읽는다**: `data/rules.md`(공용 원칙), `.claude/agents/reviewer.md`의 "기준표 — 페이지"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
 - **토큰 규칙**: 무엇을 왜 바꿀지는 recommendation·user-notes·계획에서 읽고, 원본은 **바꾸는 쪽의 `pNN.json/png`와 쓸 템플릿만** 연다. 유지하는 쪽과 고르지 않은 경험은 열지 않는다.
 - **원본 페이지**: `data/design/layouts/<row>/pNN.json`(코드로 뽑은 배치: 좌표·글자 크기·색·이미지)과 `pNN.png`(원본 그림). 어떤 행이 시작 버전인지는 recommendation에 있다.
 - **예시 시안**: `data/design/templates/<name>.json`(Figma 예시 프레임의 위치·크기. 색과 글자 크기는 자리값·추정값)과 `<name>.png`(참고 그림)
 - 사용자의 디자인 방향과 문구 규칙: `data/design/design-guide.md`
-- 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 페이지는 `docs/verification-log.md`·`docs/decisions.md`
+- 근거 자료: `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 이 저장소를 다룬 쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
 - spec 형식: `tools/figma/README.md`
-- **디자인 원칙**: frontend-design 스킬 `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills/frontend-design/SKILL.md`를 plan 전에 읽는다(없으면 건너뛴다). 웹 전용 내용(CSS, 반응형, 움직임, 서체를 새로 고르기)은 빼고 쓴다. 쓰는 것은 (1) 계획 → 계획이 흔한 기본값인지 스스로 점검 → 제작 → 결과 그림을 보고 비판하는 두 단계, (2) 힘주는 곳은 한 곳, 나머지는 조용히, (3) 번호·테두리·라벨 같은 구조 장치는 정보일 때만, (4) 같은 모양 카드 반복·장식용 그라데이션·모든 줄의 가운뎃점 나열 같은 생성물 티 피하기다. 사용자 지적(`data/feedback.md`, `user-notes.md`)과 기존 포폴의 색·서체가 이 원칙보다 우선한다.
+- **디자인 원칙(새 쪽을 그릴 때만)**: frontend-design 스킬 `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills/frontend-design/SKILL.md`를 plan 전에 읽는다(없으면 건너뛴다). 웹 전용 내용(CSS, 반응형, 움직임, 서체를 새로 고르기)은 빼고 쓴다. 쓰는 것은 (1) 계획 → 계획이 흔한 기본값인지 스스로 점검 → 제작 → 결과 그림을 보고 비판하는 두 단계, (2) 힘주는 곳은 한 곳, 나머지는 조용히, (3) 번호·테두리·라벨 같은 구조 장치는 정보일 때만, (4) 같은 모양 카드 반복·장식용 그라데이션·모든 줄의 가운뎃점 나열 같은 생성물 티 피하기다. `data/rules.md`, `user-notes.md`, 기존 포폴의 색·서체가 이 원칙보다 우선한다.
 
 - **과정·흐름을 그리는 쪽**(에이전트 구조, 작업 흐름 등): 그림의 사실 출처는 실제 절차 문서다. 이 저장소면 `.claude/skills/job-apply/SKILL.md`와 `.claude/agents/*.md`를 읽는다. 누가 누구에게 지시하고 결과를 돌려받는지(양방향), 되돌아가는 루프와 최대 횟수, 사람이 끼어드는 지점, 검증이 일어나는 곳을 먼저 목록으로 뽑고 그것을 그대로 그린다. 단계 목록을 한 줄로 늘어놓지 않는다. 견본 `data/design/references/*.png`를 모두 열어 배치·아이콘·화살표 표현 수준을 맞춘다.
 - **고쳐 달라는 요청을 받으면** 이전판 그림을 열어 요청마다 무엇을 어떻게 바꿨는지 보고한다. 이전판을 옮겨 그리기만 하지 않는다.
@@ -26,7 +26,7 @@ tools: Read, Write, Bash
 
 # MODE=plan → `JOB_DIR/portfolio-plan.md`
 쪽마다 하나씩 쓴다. **기본값은 유지**다.
-- 바꾸는 쪽마다 맨 위에 **"이 쪽에서 보여 줄 한 가지"** 한 줄. 사용자가 이 줄만 보고 초점이 맞는지 판단할 수 있게, user-notes에 적힌 사용자의 말에서 가져온다. 제목과 문구는 이 한 가지를 보여 주는 데만 쓴다.
+- 바꾸는 쪽마다 맨 위에 **"이 쪽에서 보여 줄 한 가지"** 한 줄. 공고 핵심 업무와 recommendation에서 정한다(user-notes에 사용자가 정한 것이 있으면 그것). 제목과 문구는 이 한 가지를 보여 주는 데만 쓴다.
 - 쪽이 여러 개 바뀌면 **쪽끼리 역할**을 한 줄씩 적어 같은 내용이 두 번 나오지 않게 한다(예: "p03은 무엇이 달라졌나, 흐름도 쪽은 어떻게 돌아가나").
 - 쪽 번호 / 결정(유지·수정·새로) / **바꾸는 이유** / **안 바꾸면 생기는 문제** (공고·문항 근거로 한 줄. 못 쓰면 유지)
 - **수정**: 시작 = `data/design/layouts/<row>/pNN.json`. 바꿀 요소를 **요소 이름 단위로** "원문 → 새 문구"로 쓴다(예: `Text/02: "시간 내 답하지…" → "…"`). 배치·색·크기를 바꿔야 하면 그 이유와 함께 요소별로 적는다. 적지 않은 요소는 그대로 둔다.

@@ -11,8 +11,8 @@ tools: Read, Write, Bash
 
 ## MODE=plan-review → `JOB_DIR/review/plan.json`
 제작 전, 사용자 확인 전에 계획의 **방향만** 본다. 문장 다듬기는 보지 않는다.
-- 입력: `questions.json`, `jd.txt`, `cover-letter-plan.md`(맨 끝 이력서 절 포함), `portfolio-plan.md`, `recommendation.md`, `user-notes.md`, `data/feedback.md`, 과정 쪽이 있으면 `.claude/skills/job-apply/SKILL.md`
-- 본다: 답변 기준 1(문항 일치)을 계획에 적용 / 문항끼리 같은 사건·주장 겹침 / 답변과 포폴이 같은 경험·같은 말을 하는가 / 과정 그림 계획이 실제 절차와 맞는가 / "보여 줄 한 가지"가 문항이 묻는 것에 답하는가
+- 입력: `questions.json`, `jd.txt`, `cover-letter-plan.md`(맨 끝 이력서 절 포함), `portfolio-plan.md`, `recommendation.md`, `user-notes.md`, `data/rules.md`, 과정 쪽이 있으면 `.claude/skills/job-apply/SKILL.md`
+- 본다: **고른 경험·순서·포폴 시작 행이 공고 핵심 업무에 가장 맞는가(더 맞는 경험이 빠졌거나 덜 맞는 경험이 들어갔는가), 계획이 recommendation과 다르면 이유가 있는가** / 답변 기준 1(문항 일치)을 계획에 적용 / 문항끼리 같은 사건·주장 겹침 / 답변과 포폴이 같은 경험·같은 말을 하는가 / 과정 그림 계획이 실제 절차와 맞는가 / "보여 줄 한 가지"가 문항이 묻는 것에 답하는가
 - 출력 형식은 아래와 같고 `round: "plan"`. 걸린 항목은 모두 high.
 시작할 때 `python tools/log.py start reviewer --log JOB_DIR/run-log.jsonl`, 끝날 때 `... end ...`.
 
@@ -20,12 +20,12 @@ tools: Read, Write, Bash
 - 답변: `JOB_DIR/cover-letter.json`, 이력서 수정 안내 `JOB_DIR/resume-guide.md`, 이력서 원문 `data/config.json`의 `resume.text` / 문항: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`
 - 페이지: `OUT_DIR/preview/*.png` 또는 `OUT_DIR/*.png`(모두), `JOB_DIR/portfolio-spec.json`(있으면), 이전판 그림(호출자가 주면), 흐름 쪽은 `data/design/references/*.png`, 쪽마다 기준 그림(`base_spec`과 같은 이름의 `.png`, 새 쪽은 템플릿 `reference`)
 - 승인된 계획: `JOB_DIR/cover-letter-plan.md`, `JOB_DIR/portfolio-plan.md` / 사용자의 말: `JOB_DIR/user-notes.md`
-- 사용자 피드백 누적: `data/feedback.md`
-- 근거 자료: `data/library/experiences.json`, `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, `docs/verification-log.md`, `docs/decisions.md`
+- 공용 원칙: `data/rules.md`
+- 근거 자료: `data/library/experiences.json`, `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`(있으면), 이 저장소를 다룬 답변·쪽일 때만 `docs/verification-log.md`·`docs/decisions.md`
 
 ## 코드 검사 (먼저 돌리고 결과를 항목에 반영)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/confirmed-facts.md docs/verification-log.md docs/decisions.md JOB_DIR/jd.txt`
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/jd.txt` (+ 작성 에이전트가 쓴 것과 같은 추가 출처)
 - `python tools/check_layout_diff.py JOB_DIR/portfolio-spec.json --out JOB_DIR/checks/layout-diff.json`
 
 ## 기준표 — 답변 (문항마다)
@@ -34,7 +34,7 @@ tools: Read, Write, Bash
 2. **기억에 남는 한 가지**: 다 읽고 한 문장으로 말할 수 있는가. 그것이 계획의 핵심 메시지와 같은가.
 3. **나열**: 사실·숫자를 연달아 늘어놓아 목록처럼 읽히는가. 왜 그렇게 판단했는지가 보이는가.
 4. **근거**: 문장마다 근거 자료에 있는가. 본인/팀, 제안/완료, 검토/배포 구분. 숫자가 센 대상.
-5. **표현**: 금지 표현(`.claude/agents/cover-letter-writer.md`), 같은 어미 반복, 어색한 첫 문장, 참조 표기, `data/feedback.md`의 지적 재발.
+5. **표현**: 금지 표현(`.claude/agents/cover-letter-writer.md`), 같은 어미 반복, 어색한 첫 문장, 참조 표기, `data/rules.md` 위반.
 6. **분량**: 제한의 90~100%(check_length).
 7. **문체 기준**: `data/style/anchor-candidates.md`의 사용자 예전 답변과 나란히 읽었을 때 같은 사람이 쓴 글처럼 읽히는가. 첫 문장, 이유로 잇기, 장면, 한계 위치, 마무리를 본다.
 8. **문항 간 겹침**: 다른 문항과 같은 사건·같은 주장을 쓰는가. 같은 프로젝트라도 다른 장면이면 괜찮다. **겹치면 무조건 high.**
@@ -49,7 +49,7 @@ tools: Read, Write, Bash
 2. **같은 계열**: 여백·정렬 기준선·글자 크기 위계·색이 원본(수정 쪽) 또는 참고 시안(새 쪽)과 같은 계열인가. 다른 쪽과 나란히 놓였을 때 튀는가.
 3. **밀도**: 제목 한 줄, 큰 숫자 하나, 블록 2~3개(블록당 1~2줄). 빈 공간이 한쪽에 몰렸는가.
 4. **가독성**: 처음 보는 사람이 읽는 순서(어디서 시작해 어디로 가는지)를 3초 안에 따라갈 수 있는가. 한 쪽의 정보량, 같은 라벨 반복, 글자 위계(제목 → 단계 → 설명 → 세부). 잘림·겹침·너무 작은 글자(18 미만)·대비 부족.
-5. **사실 표현**: 센 대상, 하지 않은 일을 한 것처럼 읽히는 동사, 근거 자료 여부, `data/feedback.md`의 지적 재발.
+5. **사실 표현**: 센 대상, 하지 않은 일을 한 것처럼 읽히는 동사, 근거 자료 여부, `data/rules.md` 위반.
 6. **정렬·여백**: 바깥 여백이 네 변 같은가, 같은 줄 상자의 위·아래·간격이 맞는가, 글자가 상자 가장자리에 붙었는가, 한쪽에 빈 공간이 몰렸는가.
 7. **절차 일치** (과정·흐름 쪽): 실제 절차 문서(`.claude/skills/job-apply/SKILL.md`)와 맞는가. 지시↔결과처럼 오가는 곳이 양방향인가, 수정 루프가 루프로 보이는가(최대 횟수 포함), 사람이 끼어드는 지점과 검증 위치가 맞는가.
 8. **요청 반영**: `user-notes.md`의 최근 요청마다 결과에 반영됐는가. 이전판과 나란히 보고 달라진 것이 없으면 high.

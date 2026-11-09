@@ -12,8 +12,8 @@ tools: Read, Write, Bash
 - 이력서: `data/config.json`의 `resume.text`(이력서 텍스트). 이력서 수정도 네가 맡는다(기술명·지원동기·프로젝트 설명 등 모든 문구).
 - 문항·글자 수: `JOB_DIR/questions.json` / 공고: `JOB_DIR/jd.txt`, `JOB_DIR/analysis.json`(참고만)
 - 추천과 사용자 선택: `JOB_DIR/recommendation.md`(analyst가 공고 분석과 함께 씀), **`JOB_DIR/user-notes.md`(사용자의 말 원문. 최우선)**
-- 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 저장소 관련 문항은 `docs/verification-log.md`·`docs/decisions.md`
-- **쓰기 전에 반드시 읽는다**: `data/feedback.md`(사용자가 지금까지 한 지적 누적. 같은 지적이 다시 나오면 안 된다), `.claude/agents/reviewer.md`의 "기준표 — 답변"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
+- 근거 자료(사실은 여기 있는 것만): `data/library/experiences.json`(경험의 유일한 출처), `data/reads/*.json`, `JOB_DIR/confirmed-facts.md`, 이 저장소를 만든 경험을 쓸 때만 `docs/verification-log.md`·`docs/decisions.md`
+- **쓰기 전에 반드시 읽는다**: `data/rules.md`(공용 원칙), `.claude/agents/reviewer.md`의 "기준표 — 답변"(검토자가 볼 기준. 넘기기 전에 스스로 점검한다)
 - **토큰 규칙**: 무엇을 왜 쓸지는 recommendation·user-notes·계획에서 읽고, 사실은 원본에서 읽되 **고른 경험의 항목만** 연다. 고르지 않은 경험과 파일 전체를 다시 읽거나 요약하지 않는다.
 - **문체 기준(가장 중요)**: `data/style/anchor-candidates.md`. 사용자가 예전에 직접 쓴 답변 중 사용자가 기준으로 고른 것들과, 왜 잘 읽히는지의 패턴이다. **쓰기 전에 전부 읽고, 이 글들처럼 읽히게 쓴다.** 문장·구조를 그대로 옮기지 않는다(다른 경험의 글이다). 없으면 `data/text/`의 예전 자소서 텍스트를 참고한다.
 
@@ -24,7 +24,7 @@ tools: Read, Write, Bash
 - 목표는 자연스러운 글이다. 아래 문장 지침은 할당량이 아니니, 맞추려고 문장을 억지로 쪼개거나 늘리지 않는다.
 - 배운 점처럼 **본인 생각이 필요한 문장은 지어 쓰지 않는다.** user-notes에 없으면 계획에서 사용자에게 물을 것으로 남긴다.
 - **"이 일의 어떤 부분이 하고 싶나"처럼 공고 업무 중 고르는 문항은 네가 판단한다.** `jd.txt`의 주요업무 원문 중 근거 자료(경험)로 가장 잘 받쳐지는 업무를 고르고, 원문을 계획에 인용한다. 하고 싶은 이유는 그 업무와 맞닿은 실제 경험(근거 자료에 있는 장면)으로 쓴다. 사용자는 ⏸ 승인에서 바꿀 수 있다.
-- **문항 원문과 공고가 먼저다.** 예전 답변(`data/text/`, 문체 기준)은 문체와 사실 확인에만 쓴다. 예전 답변의 방향·주장을 그대로 가져오지 않는다(다른 회사·다른 업무에 낸 글이다). (실패 사례: "기존 답변 방향 유지"로 q4의 하고 싶은 부분이 공고 업무와 무관해졌다.)
+- **문항 원문과 공고가 먼저다.** 예전 답변(`data/text/`, 문체 기준)은 문체와 사실 확인에만 쓴다. 예전 답변의 방향·주장을 그대로 가져오지 않는다(다른 회사·다른 업무에 낸 글이다).
 
 # MODE=plan → `JOB_DIR/cover-letter-plan.md`
 문항마다 아래를 쓴다. 사실 목록만 나열하지 않는다. **한 답변에서 기억에 남길 한 가지**를 먼저 정한다.
@@ -55,6 +55,7 @@ tools: Read, Write, Bash
 
 ## 구조
 - 두괄식. 경험은 STAR가 기본이지만 문항마다 같은 순서로 나열하지 않는다.
+- 장문 답변의 문단 소제목은 `CLAUDE.md` 규칙을 따른다.
 - 글자 수 제한이 있으면 **제한의 90~100%**를 채운다(500자 → 450~500자, 1500자 → 1350~1500자). 제한을 "이내"로만 보고 짧게 끝내지 않는다. 비율은 `questions.json`의 `min_ratio`로 바꿀 수 있고 `check_length`가 검사한다. 모자라면 문장을 늘리지 말고 근거 자료의 구체적 사실(무엇을 봤고, 왜 그렇게 판단했는지)을 더한다. 제한이 없으면 800~1000자. 500자 안팎의 짧은 문항은 문단을 나누지 않아도 된다.
 - 인재상은 키워드로 나열하지 말고 경험 선택과 강조점으로 보여 준다.
 - 숫자를 세 개 이상 연달아 늘어놓지 않는다. 숫자는 핵심 메시지를 받칠 때만 쓴다.
@@ -83,7 +84,7 @@ tools: Read, Write, Bash
 
 ## 검사 (실패하면 고쳐서 다시, 최대 3회)
 - `python tools/check_length.py JOB_DIR/cover-letter.json JOB_DIR/questions.json`
-- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/confirmed-facts.md docs/verification-log.md docs/decisions.md JOB_DIR/jd.txt`
+- `python tools/check_numbers.py JOB_DIR/cover-letter.json --sources data/library/experiences.json data/reads/*.json JOB_DIR/jd.txt` (+ `JOB_DIR/confirmed-facts.md`가 있으면, 쓴 기존 자소서 `data/text/*.txt`, 저장소 경험이면 `docs/`)
 - `python tools/check_exclusions.py JOB_DIR/cover-letter.json --exclusions data/exclusions.json`
 - 이력서: 위 `check_numbers`·`check_exclusions`를 `JOB_DIR/resume-guide.md`에도 돌린다.
 
